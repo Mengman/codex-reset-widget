@@ -58,3 +58,24 @@
 ## 后续工作
 
 当前发布候选版仍需最终用户验收，以及干净 Windows 11 x64、实际多屏、系统 DPI／时区热切换和真实休眠恢复的现场验证。自启动、通知、历史筛选、备用数据源、ARM64 与安装包未进入当前实现。
+
+## GitHub Actions
+
+`.github/workflows/ci.yml` 在 main 提交、PR 和手动触发时，在 windows-2025 上安装 global.json 指定 SDK，执行 `build.ps1 -Publish -RunUiChecks`。它复用功能测试、13 项 WPF 场景及解压包校验，不依赖第三方实时数据。工作流产物保留 14 天，失败时仍尝试保留报告。真实 Windows 11 桌面、托盘、显示器和联网验证在本地进行。
+
+`.github/workflows/release.yml` 由推送 v* tag 触发，使用 release-version.ps1 校验 SemVer 和 .NET 版本范围。合法 tag 为 v1.0.0、v1.0.1-rc.1 等；缺少 v、前导零、构建元数据、参数字符或超出程序集版本范围均拒绝。
+
+版本由 `build.ps1 -Version <版本>` 传入 MSBuild，同时覆盖 Version 和 InformationalVersion。程序集数值版本取基础版本，关于显示完整预发布后缀；文件名、README、RELEASE.json 与 tag 一致。未传 Version 的本地构建继续使用 csproj 中的版本。
+
+Windows 构建任务只具有 contents: read 权限，将验证后的 ZIP 和 SHA256 上传。依赖该任务的 Ubuntu 发布任务重新核对 SHA256，并使用内置 GITHUB_TOKEN 和 contents: write 创建草稿、上传附件、公开 Release。带预发布后缀标为 Prerelease，正式 tag 标为普通 Release。任务失败时不进入后续发布步骤；草稿上传失败可重跑，同名附件会替换。项目不需要额外个人 Token。
+
+工作流使用固定提交号的官方 checkout、setup-dotnet、upload-artifact 和 download-artifact Actions。tag 经环境变量传入脚本，校验后用于版本参数，避免将 ref 直接插入命令文本。
+
+```powershell
+.\scripts\build.ps1 -Publish -RunUiChecks -Version 1.0.0
+# 提交工作流后，在待发布的提交上打 tag：
+git tag -a v1.0.0 -m "Release 1.0.0"
+git push origin v1.0.0
+```
+
+本地验证已使用 1.2.3-rc.4 覆盖版本完成 110 项功能、13 项 WPF 场景和 479 个包文件校验，确认 EXE 数值及产品版本、双语使用说明、清单与 ZIP 名称一致。16 个 tag 校验案例及 actionlint 校验通过；发布命令通过 5 个模拟 CLI 案例，覆盖正式版、预发布、重跑、创建失败和上传失败后停止发布。尚未推送工作流或创建真实 tag；GitHub 托管运行与公开 Release 需在首次推送后验证。

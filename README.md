@@ -8,7 +8,7 @@ The current version is **1.0.0-rc.2**, a portable release candidate. Final user 
 
 ## Run
 
-Download the locally generated [Windows x64 portable ZIP](artifacts/releases/CodexResetWidget-1.0.0-rc.2-win-x64.zip), extract the entire archive and run `CodexResetWidget.exe`. The package includes .NET; no separate runtime installation is required.
+Download the Windows x64 portable ZIP from [GitHub Releases](https://github.com/Mengman/codex-reset-widget/releases), extract the entire archive and run `CodexResetWidget.exe`. The package includes .NET; no separate runtime installation is required. Local builds are available under `artifacts/releases/`.
 
 Before upgrading, exit the previous version from its tray menu. Extract the new version to a new folder and run it. Compatible settings and cached data are retained.
 
@@ -45,6 +45,23 @@ Live checks need access to the public API. Omit `-RunLiveChecks` for offline pac
 Artifacts are written to `artifacts/releases/`. The ZIP includes instructions, runtime licenses and `RELEASE.json` with file hashes. A separate `.sha256` file verifies the ZIP. SDK files, dependency caches and generated artifacts are excluded from Git.
 
 Tests are organized by functionality, including language policy, resource consistency, live switching and settings compatibility. See [development and testing](docs/development.md) for the full grouping and package-verification commands.
+
+## CI and releases
+
+GitHub Actions builds and verifies the Windows x64 package on pull requests and pushes to `main`. The CI workflow can also be started manually. Reports and portable packages are available as workflow artifacts for 14 days.
+
+To publish, tag a commit that includes the workflows, then push the tag:
+
+```powershell
+git tag -a v1.0.0 -m "Release 1.0.0"
+git push origin v1.0.0
+```
+
+Tags use `vMAJOR.MINOR.PATCH`, optionally with a prerelease suffix such as `v1.0.1-rc.1`. The tag supplies the program version, About version, ZIP name and package manifest; editing the project version first is unnecessary. Prerelease tags create GitHub Prereleases, and plain version tags create regular Releases.
+
+The release workflow runs functional tests, WPF scene checks and package verification before publishing the ZIP and its SHA256 file. It creates a draft, uploads both assets, then publishes the release with generated notes. Failed uploads leave the draft available for a rerun; reruns replace assets of the same name. The built-in `GITHUB_TOKEN` handles publishing; no personal access token is needed. Actions must be enabled and repository policy must allow the publish job's `contents: write` permission. [GitHub documents that permission here](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#permissions).
+
+Hosted CI uses Windows Server runners. Physical desktop, monitor, tray and real-network checks remain separate local checks. To reproduce a tag build locally, run `./scripts/build.ps1 -Publish -RunUiChecks -Version 1.0.0`. Do not move or reuse a published version tag.
 
 ## Documentation
 

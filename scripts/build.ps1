@@ -1,7 +1,12 @@
 param([switch]$Publish, [switch]$RunUiChecks, [switch]$RunDesktopChecks, [switch]$RunLiveChecks,
-    [string]$UpgradeDataDirectory)
+    [string]$UpgradeDataDirectory, [string]$Version)
 $ErrorActionPreference = 'Stop'
 if ($UpgradeDataDirectory -and -not $RunLiveChecks) { throw 'Upgrade checks require -RunLiveChecks.' }
+$versionArguments = @()
+if ($Version) {
+    $Version = & (Join-Path $PSScriptRoot 'release-version.ps1') -Tag ('v' + $Version)
+    $versionArguments = @("-p:Version=$Version", "-p:InformationalVersion=$Version")
+}
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Set-Location -LiteralPath $projectRoot
 $dotnetPath = Join-Path $projectRoot '.tools\dotnet\dotnet.exe'
@@ -23,7 +28,7 @@ $localFeed = Join-Path $projectRoot '.tools\nuget-feed'
 if (Test-Path -LiteralPath $localFeed) { $restoreArguments += @('--source', $localFeed, '-p:NuGetAudit=false') }
 & $dotnetPath restore CodexResetWidget.sln @restoreArguments
 if ($LASTEXITCODE -ne 0) { throw 'Dependency restore failed.' }
-& $dotnetPath build CodexResetWidget.sln -c Release --no-restore
+& $dotnetPath build CodexResetWidget.sln -c Release --no-restore @versionArguments
 if ($LASTEXITCODE -ne 0) { throw 'Release build failed.' }
 $releaseRoot = Join-Path $projectRoot 'artifacts\releases'
 New-Item -ItemType Directory -Force $releaseRoot | Out-Null
@@ -36,7 +41,7 @@ $buildId = [Guid]::NewGuid().ToString('N')
 $portableDirectory = Join-Path $releaseRoot ('publish-' + $buildId)
 & $dotnetPath restore src\CodexResetWidget\CodexResetWidget.csproj -r win-x64 -p:SelfContained=true @restoreArguments
 if ($LASTEXITCODE -ne 0) { throw 'Runtime restore failed.' }
-& $dotnetPath publish src\CodexResetWidget\CodexResetWidget.csproj -c Release -r win-x64 --self-contained true -o $portableDirectory --no-restore -p:DebugType=none -p:DebugSymbols=false
+& $dotnetPath publish src\CodexResetWidget\CodexResetWidget.csproj -c Release -r win-x64 --self-contained true -o $portableDirectory --no-restore -p:DebugType=none -p:DebugSymbols=false @versionArguments
 if ($LASTEXITCODE -ne 0) { throw 'Portable publish failed.' }
 $version = (Get-Item -LiteralPath (Join-Path $portableDirectory 'CodexResetWidget.exe')).VersionInfo.ProductVersion.Split('+')[0]
 if ($version -notmatch '^\d+\.\d+\.\d+([-.][a-zA-Z0-9.]+)?$') { throw 'Invalid release version.' }
@@ -79,6 +84,6 @@ Compress-Archive -Path (Join-Path $portableDirectory '*') -DestinationPath $arch
 & (Join-Path $PSScriptRoot 'verify-package.ps1') -ArchivePath $archivePath -RunDesktopChecks:$RunDesktopChecks -RunLiveChecks:$RunLiveChecks -UpgradeDataDirectory $UpgradeDataDirectory
 if (-not $?) { throw 'Package verification failed.' }
 $archiveHash = Get-FileHash -LiteralPath $archivePath -Algorithm SHA256
-($archiveHash.Hash + '  ' + [IO.Path]::GetFileName($archivePath)) |
-    Set-Content -LiteralPath ($archivePath + '.sha256') -Encoding ascii
+[IO.File]::WriteAllText($archivePath + '.sha256',
+    $archiveHash.Hash + '  ' + [IO.Path]::GetFileName($archivePath) + "`n", [Text.Encoding]::ASCII)
 $archiveHash | Format-List
