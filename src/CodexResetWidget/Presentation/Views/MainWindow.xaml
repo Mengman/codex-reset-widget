@@ -23,16 +23,14 @@
             </Style.Triggers></Style></Button.Style>
           </Button>
           <Button Style="{StaticResource ModeButton}" Command="{Binding ToggleModeCommand}" ToolTip="{Binding ModeAction}" AutomationProperties.Name="切换窗口模式" />
-          <Button x:Name="MoreButton" Style="{StaticResource IconButton}" Content="more" Click="ShowMenu" ToolTip="主题、演示工具与退出" AutomationProperties.Name="更多菜单">
+          <Button x:Name="MoreButton" Style="{StaticResource IconButton}" Content="more" Click="ShowMenu" ToolTip="主题、关于与退出" AutomationProperties.Name="更多菜单">
             <Button.ContextMenu>
               <ContextMenu Background="{DynamicResource CardBrush}" Foreground="{DynamicResource TextBrush}">
                 <MenuItem Header="跟随系统主题" Tag="System" Click="SelectTheme" />
                 <MenuItem Header="浅色主题" Tag="Light" Click="SelectTheme" />
                 <MenuItem Header="深色主题" Tag="Dark" Click="SelectTheme" />
                 <Separator />
-                <MenuItem Header="打开独立演示窗口" Click="OpenDemo" />
-                <MenuItem Header="显示／隐藏演示工具" Click="ToggleTools" Visibility="{Binding IsDemo, Converter={StaticResource BoolVisibility}}" />
-                <MenuItem Header="运行界面检查并导出快照" Click="RunPrototypeChecks" Visibility="{Binding IsDemo, Converter={StaticResource BoolVisibility}}" />
+                <MenuItem Header="关于 Codex Reset" Click="ShowAbout"/>
                 <MenuItem Header="数据来源：Codex Resets" Click="OpenSource" />
                 <Separator />
                 <MenuItem Header="最小化" Click="MinimizeWindow" />
@@ -44,14 +42,6 @@
           <Button Style="{StaticResource IconButton}" Content="close" Click="CloseWindow" ToolTip="关闭窗口，正式模式收进托盘" AutomationProperties.Name="关闭窗口" />
         </StackPanel>
       </Grid>
-      <StackPanel Grid.Row="1" Margin="0,0,0,8" Visibility="{Binding ToolsOpen, Converter={StaticResource BoolVisibility}}">
-
-        <Grid Margin="0,7,0,0" Visibility="{Binding ToolsOpen, Converter={StaticResource BoolVisibility}}">
-          <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="8" /><ColumnDefinition /></Grid.ColumnDefinitions>
-          <ComboBox ItemsSource="{Binding Scenarios}" SelectedItem="{Binding SelectedScenario}" DisplayMemberPath="Label" AutomationProperties.Name="演示场景" ToolTip="模拟场景，不请求真实接口" />
-          <ComboBox Grid.Column="2" ItemsSource="{Binding Zones}" SelectedItem="{Binding SelectedZone}" DisplayMemberPath="Label" AutomationProperties.Name="显示时区" ToolTip="演示时区不会修改电脑设置" />
-        </Grid>
-      </StackPanel>
       <ScrollViewer x:Name="ContentScroll" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
         <StackPanel Margin="0,0,0,0">
           <Border x:Name="CountdownCard" Style="{StaticResource Card}" Height="200" Padding="12,10">

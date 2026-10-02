@@ -40,6 +40,28 @@ public static class DesktopChecks
             window.Theme.Apply(AppThemeMode.Dark);
             window.Width = 400; window.Height = 840; await Idle();
             var expanded = window.Height;
+            var menu = ((Button)window.FindName("MoreButton")).ContextMenu;
+            var headers = menu.Items.OfType<MenuItem>().Select(i => i.Header?.ToString() ?? "").ToArray();
+            Check(!headers.Any(h => h.Contains("演示") || h.Contains("检查")), "Product menu contains no demo or debugging actions");
+            Check(headers.Contains("关于 Codex Reset"), "Product menu exposes About");
+            var about = new AboutWindow { Owner = window };
+            about.Show(); await Idle(); about.UpdateLayout();
+            Check(about.DisplayVersion.StartsWith(typeof(App).Assembly.GetName().Version!.ToString(3))
+                && ((TextBlock)about.FindName("VersionLabel")).Text.Contains(about.DisplayVersion), "About displays the running assembly version");
+            Check(AboutWindow.GitHubUrl == "https://github.com/Mengman", "About links to the requested GitHub profile");
+            async Task CaptureAbout(string name)
+            {
+                about.UpdateLayout();
+                var image = new RenderTargetBitmap((int)Math.Ceiling(about.ActualWidth), (int)Math.Ceiling(about.ActualHeight), 96, 96, PixelFormats.Pbgra32);
+                image.Render(about); var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(image));
+                using var file = File.Create(Path.Combine(directory, name + ".png")); encoder.Save(file);
+            }
+            await CaptureAbout("about-dark"); window.Theme.Apply(AppThemeMode.Light); await Idle(); await CaptureAbout("about-light");
+            Check(about.ActualHeight > 200 && about.ActualHeight < 600 && ReferenceEquals(about.Owner, window), "About fits content and remains owned by the widget");
+            about.Close(); Check(window.IsVisible && window.IsTicking, "Closing About leaves widget active");
+            window.Theme.Apply(AppThemeMode.Dark);
+            using var executableIcon = System.Drawing.Icon.ExtractAssociatedIcon(Environment.ProcessPath!);
+            Check(executableIcon is not null, "Published executable has an embedded application icon");
             Check(new DesktopSettings().Compact && new DesktopSettings().Width == 400, "Fresh settings start compact at the approved width");
             Check(vm.Announcement.Heading == "重置公告", "Announcement heading is constant");
             var boardCard = (Border)window.FindName("CountdownCard");

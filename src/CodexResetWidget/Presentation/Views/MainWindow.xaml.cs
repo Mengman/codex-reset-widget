@@ -98,7 +98,7 @@ public partial class MainWindow : Window
         };
     }
 
-    private double CompactHeight => 292 + (Model.ToolsOpen ? 50 : 0);
+    private const double CompactHeight = 292;
     private void UpdateTimer()
     {
         if (!IsVisible || WindowState == WindowState.Minimized) _timer.Stop();
@@ -122,8 +122,7 @@ public partial class MainWindow : Window
     private void ModelChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName is nameof(MainViewModel.IsPinned) or nameof(MainViewModel.IsCompact)) ScheduleSave();
-        if (e.PropertyName == nameof(MainViewModel.ToolsOpen) && Model.IsCompact)
-        { Height = Model.ToolsOpen ? 342 : 292; _placement.EnsureVisible(); }
+
     }
     private void ScheduleSave()
     {
@@ -181,21 +180,12 @@ public partial class MainWindow : Window
     private void DisplayChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(_placement.EnsureVisible);
     private void ShowMenu(object sender, RoutedEventArgs e) { MoreButton.ContextMenu.PlacementTarget = MoreButton; MoreButton.ContextMenu.IsOpen = true; }
     private void SelectTheme(object sender, RoutedEventArgs e) { if (sender is MenuItem { Tag: string tag } && Enum.TryParse<AppThemeMode>(tag, out var mode)) Theme.Apply(mode); }
-    private void ToggleTools(object sender, RoutedEventArgs e) { if (Model.IsDemo) Model.ToolsOpen = !Model.ToolsOpen; }
-    private void OpenDemo(object sender, RoutedEventArgs e)
-    {
-        var start = new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = true };
-        if (string.Equals(System.IO.Path.GetFileNameWithoutExtension(Environment.ProcessPath), "dotnet", StringComparison.OrdinalIgnoreCase))
-            start.ArgumentList.Add(typeof(App).Assembly.Location);
-        start.ArgumentList.Add("--demo"); Process.Start(start);
-    }
+    private void ShowAbout(object sender, RoutedEventArgs e) => new AboutWindow { Owner = this }.ShowDialog();
     private void OpenAnnouncement(object sender, RoutedEventArgs e)
     {
         if (Model.Announcement.CurrentEvent?.SourceUrl is { Scheme: "https" or "http" } url)
             Process.Start(new ProcessStartInfo(url.AbsoluteUri) { UseShellExecute = true });
     }
-    private async void RunPrototypeChecks(object sender, RoutedEventArgs e) => await PrototypeChecks.RunAsync(this,
-        System.IO.Path.GetFullPath(System.IO.Path.Combine(AppContext.BaseDirectory, "..", "captures")));
     private void MinimizeWindow(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
     private void HideWindow(object sender, RoutedEventArgs e) => HideToTray();
     private void CloseWindow(object sender, RoutedEventArgs e) => Close();

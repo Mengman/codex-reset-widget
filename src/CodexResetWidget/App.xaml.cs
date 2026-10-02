@@ -21,7 +21,7 @@ public partial class App : System.Windows.Application
         theme.Apply(AppThemeMode.System);
         var captureIndex = Array.IndexOf(e.Args, "--capture-dir");
         var desktopIndex = Array.IndexOf(e.Args, "--desktop-check-dir");
-        var demo = e.Args.Contains("--demo") || captureIndex >= 0 || desktopIndex >= 0;
+        var demo = captureIndex >= 0 || desktopIndex >= 0;
         var clock = new SystemClock();
         var http = demo ? null : new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
         var cacheRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CodexResetWidget", "cache");

@@ -2,11 +2,11 @@
 
 Windows 11 桌面重置追踪小组件。读取第三方已经分析好的 Codex 重置结果，展示下一次预计重置时间、Tibo 公告原文和历史重置日历。
 
-M1、M2 已通过用户检查并提交。M3 已完成桌面交互、托盘与设置恢复，V4 UI 修订已通过用户验收。更新日期：2026 年 10 月 2 日。
+M1、M2 已通过用户检查并提交。M3 已完成桌面交互、托盘与设置恢复，V4 UI 修订已通过用户验收；新增关于与计时器 Logo，已移除演示入口，等待补充检查。更新日期：2026 年 10 月 2 日。
 
 ## 运行与开发
 
-下载本地生成的 [M3 便携 ZIP](artifacts/milestones/m3-ui-v4/CodexResetWidget-0.3.1-m3-ui-v4-win-x64.zip)，完整解压后运行 `CodexResetWidget.exe`。包内包含 .NET 运行时和操作说明。默认读取真实公开数据；菜单可打开独立演示窗口。关闭窗口会收进托盘；从托盘菜单选择“退出”可结束运行。查看 [M3 UI 修订验收](docs/milestones/m3-ui-v4-review.md) 了解测试结果和检查清单。
+下载本地生成的 [M3 便携 ZIP](artifacts/milestones/m3-about-logo/CodexResetWidget-0.3.2-m3-win-x64.zip)，完整解压后运行 `CodexResetWidget.exe`。包内包含 .NET 运行时和操作说明。默认读取真实公开数据；“…”菜单可查看版本、作者主页等关于信息。关闭窗口会收进托盘；从托盘菜单选择“退出”可结束运行。查看 [M3 补充修改记录](docs/milestones/m3-about-logo-review.md) 了解测试结果和检查清单。
 
 开发使用 `global.json` 锁定的 .NET SDK 10.0.401。在项目根目录运行：
 

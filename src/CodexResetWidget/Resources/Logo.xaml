@@ -1,7 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <DrawingImage x:Key="AppLogo"><DrawingImage.Drawing><DrawingGroup>
-    <GeometryDrawing Brush="#008FE6"><GeometryDrawing.Geometry><RectangleGeometry Rect="0,0,32,32" RadiusX="8" RadiusY="8" /></GeometryDrawing.Geometry></GeometryDrawing>
-    <GeometryDrawing Geometry="M 23.5,7.5 A 10,10 0 1 0 26,12"><GeometryDrawing.Pen><Pen Brush="White" Thickness="2.4" StartLineCap="Round" EndLineCap="Round" /></GeometryDrawing.Pen></GeometryDrawing>
-    <GeometryDrawing Geometry="M 23.5,7.5 L 26.5,8 L 26,5"><GeometryDrawing.Pen><Pen Brush="White" Thickness="2.1" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" /></GeometryDrawing.Pen></GeometryDrawing>
+    <GeometryDrawing Brush="#0067C0"><GeometryDrawing.Geometry><RectangleGeometry Rect="0,0,32,32" RadiusX="8" RadiusY="8"/></GeometryDrawing.Geometry></GeometryDrawing>
+    <GeometryDrawing Geometry="M13 4h6 M16 7v2 M24 13A9 9 0 1 1 16 9 M16 18l3.5-3.5"><GeometryDrawing.Pen><Pen Brush="White" Thickness="2.4" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen></GeometryDrawing>
+    <GeometryDrawing Brush="White"><GeometryDrawing.Geometry><EllipseGeometry Center="16,18" RadiusX="1.5" RadiusY="1.5"/></GeometryDrawing.Geometry></GeometryDrawing>
   </DrawingGroup></DrawingImage.Drawing></DrawingImage>
 </ResourceDictionary>
