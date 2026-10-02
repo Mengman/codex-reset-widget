@@ -24,7 +24,7 @@ public static class TimeDisplay
 
     public static string TypeLabel(ResetEvent reset) => reset.Type switch
     {
-        ResetType.Regular => "全局重置", ResetType.Banked => "备用重置",
-        _ => reset.RawType is { Length: > 0 } raw ? $"其他 · {raw}" : "其他记录"
+        ResetType.Regular => "额度直接重置", ResetType.Banked => "限额重置券",
+        _ => "类型待确认"
     };
 }

@@ -18,13 +18,13 @@ internal static class M3Checks
         Check("Default settings are valid", () => Assert(PlacementPolicy.Valid(new())));
         Check("Saved monitor is restored at its own DPI", () =>
         {
-            var (monitor, rect) = PlacementPolicy.Restore(new(Monitor: "right", PhysicalLeft: 2100, PhysicalTop: 100), monitors);
+            var (monitor, rect) = PlacementPolicy.Restore(new(Width: 440, ExpandedHeight: 1020, Compact: false, Monitor: "right", PhysicalLeft: 2100, PhysicalTop: 100), monitors);
             Assert(monitor.Name == "right" && rect.Width == 660 && rect.Height == 1400 && rect.X == 2100 && rect.Y == 0);
         });
         Check("Negative monitor coordinates remain valid", () =>
         {
             var (monitor, rect) = PlacementPolicy.Restore(new(Monitor: "left", PhysicalLeft: -1700, PhysicalTop: -100, Compact: true), monitors);
-            Assert(monitor.Name == "left" && rect.X == -1700 && rect.Y == -100 && rect.Width == 880 && rect.Height == 800);
+            Assert(monitor.Name == "left" && rect.X == -1700 && rect.Y == -100 && rect.Width == 800 && rect.Height == 584);
         });
         Check("Removed monitor falls back to nearest available monitor", () =>
         {
@@ -33,13 +33,13 @@ internal static class M3Checks
         });
         Check("Oversized window is clamped to working area", () =>
         {
-            var (_, rect) = PlacementPolicy.Restore(new(Width: 4000, ExpandedHeight: 5000, Monitor: "primary"), monitors);
+            var (_, rect) = PlacementPolicy.Restore(new(Width: 4000, ExpandedHeight: 5000, Compact: false, Monitor: "primary"), monitors);
             Assert(rect == monitors[0].WorkArea);
         });
         Check("New window is centered within working area", () =>
         {
             var (_, rect) = PlacementPolicy.Restore(new(Monitor: "primary", Compact: true), monitors);
-            Assert(rect.X == 740 && rect.Y == 320);
+            Assert(rect.X == 760 && rect.Y == 374);
         });
         foreach (var percent in new[] { 100, 150, 200 })
             Check($"Placement fits {percent} percent scaled work area", () =>

@@ -2,6 +2,8 @@
 
 日期：2026 年 10 月 2 日。版本：0.3.0-m3。状态：阶段内验证通过，等待用户检查。M4 尚未开始。
 
+用户检查后提出 UI 调整，最新交付为 [M3 UI V4 修订版](m3-ui-v4-review.md)；本文保留初版 M3 的验证记录。
+
 ## 交付与运行
 
 - [便携 ZIP](../../artifacts/milestones/m3/CodexResetWidget-0.3.0-m3-win-x64.zip)：完整解压后运行 `CodexResetWidget.exe`，自带 .NET 运行时。

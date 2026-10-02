@@ -1,7 +1,7 @@
 namespace CodexResetWidget.Domain;
 
-public sealed record DesktopSettings(int SchemaVersion = 1, double Width = 440, double ExpandedHeight = 1020,
-    bool Compact = false, bool Pinned = false, string Theme = "System", string? Monitor = null,
+public sealed record DesktopSettings(int SchemaVersion = 1, double Width = 400, double ExpandedHeight = 840,
+    bool Compact = true, bool Pinned = false, string Theme = "System", string? Monitor = null,
     double? PhysicalLeft = null, double? PhysicalTop = null, bool TrayHintShown = false);
 public readonly record struct DesktopRect(double X, double Y, double Width, double Height);
 public sealed record MonitorArea(string Name, DesktopRect WorkArea, double Scale);
@@ -24,7 +24,7 @@ public static class PlacementPolicy
             ?? monitors.MinBy(m => Distance(x, y, m.WorkArea))!;
         var bounds = monitor.WorkArea;
         var width = Math.Min(settings.Width * monitor.Scale, bounds.Width);
-        var height = Math.Min((settings.Compact ? 400 : settings.ExpandedHeight) * monitor.Scale, bounds.Height);
+        var height = Math.Min((settings.Compact ? 292 : settings.ExpandedHeight) * monitor.Scale, bounds.Height);
         if (settings.PhysicalLeft is null || settings.PhysicalTop is null)
         { x = bounds.X + (bounds.Width - width) / 2; y = bounds.Y + (bounds.Height - height) / 2; }
         return (monitor, Fit(new(x, y, width, height), bounds));

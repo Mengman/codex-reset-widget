@@ -15,8 +15,8 @@ public sealed class BoardViewModel : ObservableObject
     public bool HasNotice => Notice.Length > 0;
     public string Title => _state.Status switch
     {
-        BoardStatus.Countdown => "下一次公告重置",
-        BoardStatus.RecentAnnouncement => "最近公告的预计重置时间", _ => "重置公告板"
+        BoardStatus.Countdown => "重置倒计时",
+        BoardStatus.RecentAnnouncement => "最近公告的预计重置时间", _ => "重置倒计时"
     };
     public string Badge => _health.IsLoading && _state.RelatedEvent is null ? "加载中" : _state.Status switch
     {
@@ -31,7 +31,7 @@ public sealed class BoardViewModel : ObservableObject
         BoardStatus.Watch => "有重置信号\n时间未定", _ => "下一次重置\n尚未公布"
     };
     public string ZoneLabel => TimeDisplay.ZoneLabel(_state.RelatedEvent?.ScheduledForUtc ?? _now, _zone, _followsSystem);
-    public string Summary => $"{ZoneLabel} · {Supporting}";
+    public string Summary => Supporting;
     public string ZoneName => _zone.DisplayName;
     public string Supporting => _state.RelatedEvent is { } reset ? TimeDisplay.TypeLabel(reset) : "以公开公告为依据";
     public string Notice
@@ -39,7 +39,6 @@ public sealed class BoardViewModel : ObservableObject
         get
         {
             var notices = new List<string>();
-            if (ShowsDate) notices.Add("实际额度请以 Codex 中显示为准。");
             if (_state.AnnouncementUnconfirmed) notices.Add("该预告已不在当前数据源中，状态待确认。");
             if (_state.TargetChanged) notices.Add("公告时间已更新。");
             if (_health.IsFromCache) notices.Add($"缓存：{(_health.LastSuccessAtUtc is { } at ? TimeDisplay.DateTime(at, _zone) : "时间未知")}");

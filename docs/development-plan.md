@@ -1,6 +1,6 @@
 # Codex Reset Widget 开发计划
 
-制定日期：2026 年 10 月 2 日。当前状态：M1、M2 已通过用户检查并提交；M3 已完成阶段内验证，等待用户检查。交付与验证记录见 [M1 验收记录](milestones/m1-review.md) 、[M2 验收记录](milestones/m2-review.md) 和 [M3 验收记录](milestones/m3-review.md)。
+制定日期：2026 年 10 月 2 日。当前状态：M1、M2 已通过用户检查并提交；M3 已完成阶段内验证，并按用户确认的 V4 设计修订 UI，等待用户检查。交付与验证记录见 [M1 验收记录](milestones/m1-review.md) 、[M2 验收记录](milestones/m2-review.md) 、[M3 验收记录](milestones/m3-review.md) 和 [UI 修订验收](milestones/m3-ui-v4-review.md)。
 
 第一版交付 Windows 11 x64 独立小窗口，包含公告板、公告、日历、展开／紧凑切换、系统主题与时区跟随、刷新与缓存，最终提供自带运行时的便携 ZIP。开发分为四个 milestone，每个阶段交付可运行版本，完成阶段内验证后暂停，由用户检查并明确同意后进入下一阶段。
 

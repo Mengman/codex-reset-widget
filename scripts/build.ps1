@@ -26,7 +26,7 @@ if (Test-Path -LiteralPath $localFeed) {
 if ($LASTEXITCODE -ne 0) { throw 'Dependency restore failed.' }
 & $dotnetPath build CodexResetWidget.sln -c Release --no-restore
 if ($LASTEXITCODE -ne 0) { throw 'Release build failed.' }
-$milestoneRoot = Join-Path $projectRoot 'artifacts\milestones\m3'
+$milestoneRoot = Join-Path $projectRoot 'artifacts\milestones\m3-ui-v4'
 New-Item -ItemType Directory -Force $milestoneRoot | Out-Null
 & $dotnetPath tests\CodexResetWidget.Tests\bin\Release\net10.0\CodexResetWidget.Tests.dll |
     Tee-Object -FilePath (Join-Path $milestoneRoot 'domain-tests.txt')
@@ -49,7 +49,7 @@ if ($Publish -or $RunUiChecks -or $RunDesktopChecks) {
         if ($licenseFiles.Count -eq 0) { throw "Runtime license missing: $runtimePackageId" }
         foreach ($licenseFile in $licenseFiles) { Copy-Item -LiteralPath $licenseFile.FullName -Destination $licenseDirectory -Force }
     }
-    $archivePath = Join-Path $milestoneRoot 'CodexResetWidget-0.3.0-m3-win-x64.zip'
+    $archivePath = Join-Path $milestoneRoot 'CodexResetWidget-0.3.1-m3-ui-v4-win-x64.zip'
     Compress-Archive -Path (Join-Path $portableDirectory '*') -DestinationPath $archivePath -Force
     Get-FileHash -LiteralPath $archivePath -Algorithm SHA256 | Format-List
 }

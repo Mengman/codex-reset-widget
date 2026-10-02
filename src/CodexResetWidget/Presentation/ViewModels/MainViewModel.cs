@@ -18,7 +18,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private DemoScenario _scenario = DemoData.Scenarios[0];
     private ZoneOption _zoneOption;
     private WidgetSnapshot _snapshot;
-    private bool _compact;
+    private bool _compact = true;
     private bool _pinned;
     private bool _toolsOpen;
     private DateOnly _lastToday;
@@ -32,12 +32,15 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public WidgetSnapshot Snapshot => _snapshot;
     public TimeZoneInfo CurrentZone => _zones.CurrentZone;
     public bool IsDemo => _sync is null;
+    public string SourceCaption => IsDemo ? "模拟数据 · Codex Resets ↗" : "Codex Resets ↗";
     public string DemoLabel => IsDemo ? "演示模式 · 模拟数据 · 不查询个人额度" : "公开公告 · 实际额度以 Codex 为准";
     public string FooterTime => _snapshot.StatusHealth.IsLoading ? "正在检查公告…" : _snapshot.StatusHealth.LastSuccessAtUtc is { } at
-        ? $"{(IsDemo ? "模拟检查于" : "公告检查于")} {TimeDisplay.DateTime(at, _zones.CurrentZone)}" : "尚无成功检查";
+        ? $"{TimeZoneInfo.ConvertTime(at, _zones.CurrentZone):HH:mm} 更新" : "尚无成功检查";
     public string HistoryHealthText => IsDemo ? "" : _snapshot.HistoryHealth.IsLoading ? "正在加载历史记录…"
         : _snapshot.HistoryHealth.LastError is { } error ? $"历史：{error}" : _snapshot.HistoryHealth.LastSuccessAtUtc is { } at
         ? $"{(_snapshot.HistoryHealth.IsFromCache ? "缓存 · " : "")}{(_snapshot.History.IsComplete ? "历史检查于" : "历史尚未完整 · 检查于")} {TimeDisplay.DateTime(at, _zones.CurrentZone)}{(_snapshot.HistoryHealth.IsStale ? " · 可能已过期" : "")}" : "历史记录尚未加载";
+    public string HistoryNotice => _snapshot.HistoryHealth.LastError is not null || !_snapshot.History.IsComplete || _snapshot.HistoryHealth.IsStale ? HistoryHealthText : "";
+    public bool HasHistoryNotice => !IsDemo && HistoryNotice.Length > 0;
     public string CacheWarning => _sync?.CacheWarning ?? "";
     public string UpstreamTime => _snapshot.Status?.GeneratedAtUtc is { } at
         ? $"上游响应生成于 {TimeDisplay.DateTime(at, _zones.CurrentZone, true)}；检查成功不代表上游已采集最新公告。" : "上游尚未提供生成时间。";
@@ -118,7 +121,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             else ShowLatest();
         }
         else ShowLatest();
-        RebuildCalendar(); Tick(); Changed(nameof(FooterTime)); Changed(nameof(HistoryHealthText)); Changed(nameof(CacheWarning)); Changed(nameof(UpstreamTime));
+        RebuildCalendar(); Tick(); Changed(nameof(FooterTime)); Changed(nameof(HistoryHealthText)); Changed(nameof(HistoryNotice)); Changed(nameof(HasHistoryNotice)); Changed(nameof(CacheWarning)); Changed(nameof(UpstreamTime));
     }
 
     private void ShowLatest()

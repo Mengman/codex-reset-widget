@@ -39,8 +39,16 @@ public partial class MainWindow : Window
         Model = model; Theme = theme; _store = store; _settings = settings ?? new(); _enableBackdrop = enableBackdrop;
         InitializeComponent(); DataContext = model;
         _placement = new(this);
+        var readingKey = Model.Announcement.CurrentEvent?.Key;
+        Model.Announcement.PropertyChanged += AnnouncementChanged;
+        void AnnouncementChanged(object? sender, PropertyChangedEventArgs args)
+        {
+            var key = Model.Announcement.CurrentEvent?.Key;
+            if (key != readingKey) { readingKey = key; AnnouncementScroll.ScrollToTop(); }
+        }
+        Closed += (_, _) => Model.Announcement.PropertyChanged -= AnnouncementChanged;
         Width = _settings.Width; _expandedHeight = _settings.ExpandedHeight;
-        Height = model.IsCompact ? 400 : _expandedHeight;
+        Height = model.IsCompact ? CompactHeight : _expandedHeight;
         if (_settings.PhysicalLeft is not null) WindowStartupLocation = WindowStartupLocation.Manual;
         _timer = new DispatcherTimer(TimeSpan.FromSeconds(1), DispatcherPriority.Background, (_, _) =>
         {
@@ -54,6 +62,7 @@ public partial class MainWindow : Window
         SourceInitialized += (_, _) =>
         {
             _placement.Restore(_settings);
+            if (Model.IsCompact) Height = CompactHeight;
             RefreshBackdrop();
             if (enableTray)
                 _tray = new TrayService((System.Windows.Media.ImageSource)FindResource("AppLogo"), ShowFromTray,
@@ -89,6 +98,7 @@ public partial class MainWindow : Window
         };
     }
 
+    private double CompactHeight => 292 + (Model.ToolsOpen ? 50 : 0);
     private void UpdateTimer()
     {
         if (!IsVisible || WindowState == WindowState.Minimized) _timer.Stop();
@@ -100,7 +110,7 @@ public partial class MainWindow : Window
         if (Model.IsCompact)
         {
             _expandedHeight = ActualHeight; _expandedScroll = ContentScroll.VerticalOffset;
-            Height = Model.ToolsOpen ? 450 : 400; ContentScroll.ScrollToTop();
+            Height = CompactHeight; ContentScroll.ScrollToTop();
         }
         else
         {
@@ -113,7 +123,7 @@ public partial class MainWindow : Window
     {
         if (e.PropertyName is nameof(MainViewModel.IsPinned) or nameof(MainViewModel.IsCompact)) ScheduleSave();
         if (e.PropertyName == nameof(MainViewModel.ToolsOpen) && Model.IsCompact)
-        { Height = Model.ToolsOpen ? 450 : 400; _placement.EnsureVisible(); }
+        { Height = Model.ToolsOpen ? 342 : 292; _placement.EnsureVisible(); }
     }
     private void ScheduleSave()
     {
@@ -136,7 +146,7 @@ public partial class MainWindow : Window
         _store.Save(_settings); UpdateNotice();
     }
     private void UpdateNotice() => DesktopNotice.Text = _store?.Warning
-        ?? (HasTray && !_settings.TrayHintShown ? "关闭窗口会收进托盘；从托盘菜单选择“退出”。" : "");
+        ?? "";
     public void HideToTray()
     {
         if (_tray is null) { WindowState = WindowState.Minimized; return; }

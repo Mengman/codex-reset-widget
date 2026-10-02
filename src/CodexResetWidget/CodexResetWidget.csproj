@@ -7,8 +7,8 @@
     <!-- WPF owns the HWND and DPI awareness; WinForms is only used for the tray. -->
     <NoWarn>$(NoWarn);WFO0003</NoWarn>
     <AssemblyName>CodexResetWidget</AssemblyName>
-    <Version>0.3.0</Version>
-    <InformationalVersion>0.3.0-m3</InformationalVersion>
+    <Version>0.3.1</Version>
+    <InformationalVersion>0.3.1-m3-ui-v4</InformationalVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup><Using Remove="System.Windows.Forms" /><Using Remove="System.Drawing" /></ItemGroup>

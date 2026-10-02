@@ -1,0 +1,359 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1000" viewBox="0 0 1320 1000">
+  <rect width="1320" height="1000" fill="#28394e" />
+  <text x="28" y="40" style="font-size:25px;font-weight:600;fill:#f3f3f3">Codex Reset · UI 修订稿 V4</text>
+  <text x="28" y="65" class="muted" style=";fill:#adb3bb">精简只显示倒计时 · 展开顺序：倒计时 → 公告 → 日历 · 示例数据</text>
+  <text x="28" y="99" class="heading" style=";fill:#f3f3f3">深色 · 精简 400 × 292</text>
+  <g transform="translate(28 114)" color="#f3f3f3" style="--surface:#202124;--card:#2b2d30;--border:#45474b;--status:#173a4c;--accent:#60cdff">
+    <g transform="translate(0 0)">
+      <g>
+        <rect width="400" height="292" rx="10" fill="#202124" stroke="#45474b" />
+        <g transform="translate(0 0)">
+          <g>
+            <g transform="translate(12 8)">
+              <g>
+                <rect width="26" height="26" rx="6" fill="#009fe8" />
+                <path d="M19 7a9 9 0 1 1-7-3" stroke="white" stroke-width="2.2" fill="none" />
+                <path d="M18 3v6h-6" stroke="white" stroke-width="2.2" fill="none" />
+              </g>
+            </g>
+            <text x="46" y="27" class="heading" style=";fill:#f3f3f3">Codex Reset</text>
+            <g xmlns="http://www.w3.org/2000/svg" transform="translate(236 7)" data-button="refresh">
+              <rect width="28" height="28" rx="5" fill="transparent" />
+              <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#f3f3f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13.2 5.5A5.7 5.7 0 1 0 13.5 10 M13.2 1.8v3.7H9.5" />
+              </svg>
+            </g>
+            <g xmlns="http://www.w3.org/2000/svg" transform="translate(266 7)" data-button="pin">
+              <rect width="28" height="28" rx="5" fill="transparent" />
+              <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#f3f3f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <g transform="rotate(35 8 8)">
+                  <path d="M4 2h8v2l-1.5 2v4l2 2h-9l2-2V6L4 4z M8 12v3" />
+                </g>
+              </svg>
+            </g>
+            <g xmlns="http://www.w3.org/2000/svg" transform="translate(296 7)" data-button="down">
+              <rect width="28" height="28" rx="5" fill="transparent" />
+              <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#f3f3f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2.5 5.5L8 11l5.5-5.5" />
+              </svg>
+            </g>
+            <g xmlns="http://www.w3.org/2000/svg" transform="translate(326 7)" data-button="more">
+              <rect width="28" height="28" rx="5" fill="transparent" />
+              <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#f3f3f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="3" cy="8" r="1.2" fill="#f3f3f3" stroke="none" />
+                <circle cx="8" cy="8" r="1.2" fill="#f3f3f3" stroke="none" />
+                <circle cx="13" cy="8" r="1.2" fill="#f3f3f3" stroke="none" />
+              </svg>
+            </g>
+            <g xmlns="http://www.w3.org/2000/svg" transform="translate(356 7)" data-button="close">
+              <rect width="28" height="28" rx="5" fill="transparent" />
+              <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#f3f3f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3l10 10 M13 3L3 13" />
+              </svg>
+            </g>
+          </g>
+        </g>
+        <g transform="translate(0 0)">
+          <g>
+            <rect x="12" y="50" width="376" height="200" rx="8" fill="#2b2d30" stroke="#45474b" />
+            <text x="26" y="78" class="heading" style=";fill:#f3f3f3">重置倒计时</text>
+            <rect x="320" y="61" width="54" height="24" rx="12" fill="#173a4c" />
+            <text x="347" y="77" text-anchor="middle" class="accent" style="font-size:12px;fill:#60cdff">已预告</text>
+            <text x="200" y="136" text-anchor="middle" class="accent" style="font-size:48px;font-weight:600;font-variant-numeric:tabular-nums;fill:#60cdff">07:39:59</text>
+            <text x="200" y="158" text-anchor="middle" class="muted" style="font-size:13px;fill:#adb3bb">距公告预计时间</text>
+            <text x="200" y="187" text-anchor="middle" class="muted" style="font-size:12px;fill:#adb3bb">公告预计时间</text>
+            <text x="200" y="211" text-anchor="middle" style="font-size:19px;font-weight:600;fill:#f3f3f3">10 月 3 日 01:00</text>
+            <circle cx="29" cy="232" r="3" fill="#60cdff" />
+            <text x="39" y="236" class="muted" style="font-size:12px;fill:#adb3bb">额度直接重置</text>
+            <text x="374" y="236" text-anchor="end" class="muted" style=";fill:#adb3bb">实际额度以 Codex 为准</text>
+          </g>
+        </g>
+        <g transform="translate(0 262)">
+          <g>
+            <text x="12" y="18" class="muted" style=";fill:#adb3bb">Codex Resets ↗</text>
+            <text x="324" y="18" class="muted" style=";fill:#adb3bb">17:17 更新</text>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+  <text x="460" y="99" class="heading" style=";fill:#f3f3f3">浅色 · 精简 400 × 292</text>
+  <g class="light" transform="translate(460 114)" color="#1a1a1a" style="--text:#1a1a1a;--muted:#60666d;--surface:#f3f3f3;--card:#ffffff;--border:#dedede;--status:#d9eaff;--accent:#0067c0">
+    <g transform="translate(0 0)">
+      <g>
+        <rect width="400" height="292" rx="10" fill="#f3f3f3" stroke="#dedede" />
+        <g transform="translate(0 0)">
+          <g>
+            <g transform="translate(12 8)">
+              <g>
+                <rect width="26" height="26" rx="6" fill="#009fe8" />
+                <path d="M19 7a9 9 0 1 1-7-3" stroke="white" stroke-width="2.2" fill="none" />
+                <path d="M18 3v6h-6" stroke="white" stroke-width="2.2" fill="none" />
+              </g>
+            </g>
+            <text x="46" y="27" class="heading" style=";fill:#1a1a1a">Codex Reset</text>
+            <g xmlns="http://www.w3.org/2000/svg" transform="translate(236 7)" data-button="refresh">
+              <rect width="28" height="28" rx="5" fill="transparent" />
+              <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13.2 5.5A5.7 5.7 0 1 0 13.5 10 M13.2 1.8v3.7H9.5" />
+              </svg>
+            </g>
+            <g xmlns="http://www.w3.org/2000/svg" transform="translate(266 7)" data-button="pin">
+              <rect width="28" height="28" rx="5" fill="transparent" />
+              <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <g transform="rotate(35 8 8)">
+                  <path d="M4 2h8v2l-1.5 2v4l2 2h-9l2-2V6L4 4z M8 12v3" />
+                </g>
+              </svg>
+            </g>
+            <g xmlns="http://www.w3.org/2000/svg" transform="translate(296 7)" data-button="down">
+              <rect width="28" height="28" rx="5" fill="transparent" />
+              <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2.5 5.5L8 11l5.5-5.5" />
+              </svg>
+            </g>
+            <g xmlns="http://www.w3.org/2000/svg" transform="translate(326 7)" data-button="more">
+              <rect width="28" height="28" rx="5" fill="transparent" />
+              <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="3" cy="8" r="1.2" fill="#1a1a1a" stroke="none" />
+                <circle cx="8" cy="8" r="1.2" fill="#1a1a1a" stroke="none" />
+                <circle cx="13" cy="8" r="1.2" fill="#1a1a1a" stroke="none" />
+              </svg>
+            </g>
+            <g xmlns="http://www.w3.org/2000/svg" transform="translate(356 7)" data-button="close">
+              <rect width="28" height="28" rx="5" fill="transparent" />
+              <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3l10 10 M13 3L3 13" />
+              </svg>
+            </g>
+          </g>
+        </g>
+        <g transform="translate(0 0)">
+          <g>
+            <rect x="12" y="50" width="376" height="200" rx="8" fill="#ffffff" stroke="#dedede" />
+            <text x="26" y="78" class="heading" style=";fill:#1a1a1a">重置倒计时</text>
+            <rect x="320" y="61" width="54" height="24" rx="12" fill="#d9eaff" />
+            <text x="347" y="77" text-anchor="middle" class="accent" style="font-size:12px;fill:#0067c0">已预告</text>
+            <text x="200" y="136" text-anchor="middle" class="accent" style="font-size:48px;font-weight:600;font-variant-numeric:tabular-nums;fill:#0067c0">07:39:59</text>
+            <text x="200" y="158" text-anchor="middle" class="muted" style="font-size:13px;fill:#60666d">距公告预计时间</text>
+            <text x="200" y="187" text-anchor="middle" class="muted" style="font-size:12px;fill:#60666d">公告预计时间</text>
+            <text x="200" y="211" text-anchor="middle" style="font-size:19px;font-weight:600;fill:#1a1a1a">10 月 3 日 01:00</text>
+            <circle cx="29" cy="232" r="3" fill="#0067c0" />
+            <text x="39" y="236" class="muted" style="font-size:12px;fill:#60666d">额度直接重置</text>
+            <text x="374" y="236" text-anchor="end" class="muted" style=";fill:#60666d">实际额度以 Codex 为准</text>
+          </g>
+        </g>
+        <g transform="translate(0 262)">
+          <g>
+            <text x="12" y="18" class="muted" style=";fill:#60666d">Codex Resets ↗</text>
+            <text x="324" y="18" class="muted" style=";fill:#60666d">17:17 更新</text>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+  <text x="892" y="99" class="heading" style=";fill:#f3f3f3">深色 · 展开 400 × 840</text>
+  <g transform="translate(892 114)" color="#f3f3f3" style="--surface:#202124;--card:#2b2d30;--border:#45474b;--status:#173a4c;--accent:#60cdff">
+    <rect width="400" height="840" rx="10" fill="#202124" stroke="#45474b" />
+    <g transform="translate(0 0)">
+      <g>
+        <g transform="translate(12 8)">
+          <g>
+            <rect width="26" height="26" rx="6" fill="#009fe8" />
+            <path d="M19 7a9 9 0 1 1-7-3" stroke="white" stroke-width="2.2" fill="none" />
+            <path d="M18 3v6h-6" stroke="white" stroke-width="2.2" fill="none" />
+          </g>
+        </g>
+        <text x="46" y="27" class="heading" style=";fill:#f3f3f3">Codex Reset</text>
+        <g xmlns="http://www.w3.org/2000/svg" transform="translate(236 7)" data-button="refresh">
+          <rect width="28" height="28" rx="5" fill="transparent" />
+          <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#f3f3f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13.2 5.5A5.7 5.7 0 1 0 13.5 10 M13.2 1.8v3.7H9.5" />
+          </svg>
+        </g>
+        <g xmlns="http://www.w3.org/2000/svg" transform="translate(266 7)" data-button="pinned">
+          <rect width="28" height="28" rx="5" fill="#173a4c" />
+          <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#60cdff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 2h8v2l-1.5 2v4l2 2h-9l2-2V6L4 4z" fill="#60cdff" stroke="none" />
+            <path d="M8 12v3" />
+          </svg>
+        </g>
+        <g xmlns="http://www.w3.org/2000/svg" transform="translate(296 7)" data-button="up">
+          <rect width="28" height="28" rx="5" fill="transparent" />
+          <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#f3f3f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2.5 10.5L8 5l5.5 5.5" />
+          </svg>
+        </g>
+        <g xmlns="http://www.w3.org/2000/svg" transform="translate(326 7)" data-button="more">
+          <rect width="28" height="28" rx="5" fill="transparent" />
+          <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#f3f3f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="3" cy="8" r="1.2" fill="#f3f3f3" stroke="none" />
+            <circle cx="8" cy="8" r="1.2" fill="#f3f3f3" stroke="none" />
+            <circle cx="13" cy="8" r="1.2" fill="#f3f3f3" stroke="none" />
+          </svg>
+        </g>
+        <g xmlns="http://www.w3.org/2000/svg" transform="translate(356 7)" data-button="close">
+          <rect width="28" height="28" rx="5" fill="transparent" />
+          <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#f3f3f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3l10 10 M13 3L3 13" />
+          </svg>
+        </g>
+      </g>
+    </g>
+    <g transform="translate(0 0)">
+      <g>
+        <rect x="12" y="50" width="376" height="200" rx="8" fill="#2b2d30" stroke="#45474b" />
+        <text x="26" y="78" class="heading" style=";fill:#f3f3f3">重置倒计时</text>
+        <rect x="320" y="61" width="54" height="24" rx="12" fill="#173a4c" />
+        <text x="347" y="77" text-anchor="middle" class="accent" style="font-size:12px;fill:#60cdff">已预告</text>
+        <text x="200" y="136" text-anchor="middle" class="accent" style="font-size:48px;font-weight:600;font-variant-numeric:tabular-nums;fill:#60cdff">07:39:59</text>
+        <text x="200" y="158" text-anchor="middle" class="muted" style="font-size:13px;fill:#adb3bb">距公告预计时间</text>
+        <text x="200" y="187" text-anchor="middle" class="muted" style="font-size:12px;fill:#adb3bb">公告预计时间</text>
+        <text x="200" y="211" text-anchor="middle" style="font-size:19px;font-weight:600;fill:#f3f3f3">10 月 3 日 01:00</text>
+        <circle cx="29" cy="232" r="3" fill="#60cdff" />
+        <text x="39" y="236" class="muted" style="font-size:12px;fill:#adb3bb">额度直接重置</text>
+        <text x="374" y="236" text-anchor="end" class="muted" style=";fill:#adb3bb">实际额度以 Codex 为准</text>
+      </g>
+    </g>
+    <g transform="translate(0 214)">
+      <g>
+        <text x="12" y="64" class="heading" style=";fill:#f3f3f3">重置公告</text>
+        <g xmlns="http://www.w3.org/2000/svg" transform="translate(326 45)" data-button="left">
+          <rect width="28" height="28" rx="5" fill="transparent" />
+          <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#f3f3f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11.5 2.5L4.5 8l7 5.5" />
+          </svg>
+        </g>
+        <g xmlns="http://www.w3.org/2000/svg" transform="translate(356 45)" data-button="right">
+          <rect width="28" height="28" rx="5" fill="transparent" />
+          <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#f3f3f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4.5 2.5L11.5 8l-7 5.5" />
+          </svg>
+        </g>
+        <rect x="12" y="74" width="376" height="190" rx="8" fill="#2b2d30" stroke="#45474b" />
+        <circle cx="41" cy="105" r="17" fill="#7c9abd" />
+        <text x="36" y="111" style="fill:white;font-size:17px;fill:white">T</text>
+        <text x="68" y="101" style="font-weight:600;fill:#f3f3f3">Tibo</text>
+        <text x="68" y="117" class="muted" style=";fill:#adb3bb">@thsottiaux</text>
+        <text x="321" y="105" class="muted" style=";fill:#adb3bb">公开公告</text>
+        <text x="24" y="146" style=";fill:#f3f3f3">Global reset landing tomorrow 10am</text>
+        <text x="24" y="167" style=";fill:#f3f3f3">PST for all paid ChatGPT accounts.</text>
+        <text x="24" y="246" class="muted" style=";fill:#adb3bb">10 月 2 日 10:14</text>
+        <text x="292" y="246" class="accent" style="font-size:12px;fill:#60cdff">查看原文 ↗</text>
+      </g>
+    </g>
+    <g transform="translate(0 98)">
+      <text x="12" y="407" class="heading" style=";fill:#f3f3f3">重置日历</text>
+      <rect x="12" y="418" width="376" height="280" rx="8" fill="#2b2d30" stroke="#45474b" />
+      <text x="24" y="443" class="heading" style=";fill:#f3f3f3">2026 年 10 月</text>
+      <text x="282" y="443" style=";fill:#f3f3f3">本月</text>
+      <g style="font-size:12px">
+        <text x="35" y="468" style=";fill:#f3f3f3">一</text>
+        <text x="85" y="468" style=";fill:#f3f3f3">二</text>
+        <text x="135" y="468" style=";fill:#f3f3f3">三</text>
+        <text x="185" y="468" style=";fill:#f3f3f3">四</text>
+        <text x="235" y="468" style=";fill:#f3f3f3">五</text>
+        <text x="285" y="468" style=";fill:#f3f3f3">六</text>
+        <text x="335" y="468" style=";fill:#f3f3f3">日</text>
+      </g>
+      <rect x="224" y="476" width="36" height="26" rx="5" fill="#60cdff" />
+      <g text-anchor="middle" style="font-size:12px">
+        <text x="42" y="493" class="muted" style=";fill:#adb3bb">28</text>
+        <text x="92" y="493" class="muted" style=";fill:#adb3bb">29</text>
+        <text x="142" y="493" class="muted" style=";fill:#adb3bb">30</text>
+        <text x="192" y="493" style=";fill:#f3f3f3">1</text>
+        <text x="242" y="493" style="fill:#102a3a;fill:#102a3a">2</text>
+        <text x="292" y="493" style=";fill:#f3f3f3">3</text>
+        <text x="342" y="493" style=";fill:#f3f3f3">4</text>
+        <text x="42" y="522" style=";fill:#f3f3f3">5</text>
+        <text x="92" y="522" style=";fill:#f3f3f3">6</text>
+        <text x="142" y="522" style=";fill:#f3f3f3">7</text>
+        <text x="192" y="522" style=";fill:#f3f3f3">8</text>
+        <text x="242" y="522" style=";fill:#f3f3f3">9</text>
+        <text x="292" y="522" style=";fill:#f3f3f3">10</text>
+        <text x="342" y="522" style=";fill:#f3f3f3">11</text>
+        <text x="42" y="551" style=";fill:#f3f3f3">12</text>
+        <text x="92" y="551" style=";fill:#f3f3f3">13</text>
+        <text x="142" y="551" style=";fill:#f3f3f3">14</text>
+        <text x="192" y="551" style=";fill:#f3f3f3">15</text>
+        <text x="242" y="551" style=";fill:#f3f3f3">16</text>
+        <text x="292" y="551" style=";fill:#f3f3f3">17</text>
+        <text x="342" y="551" style=";fill:#f3f3f3">18</text>
+        <text x="42" y="580" style=";fill:#f3f3f3">19</text>
+        <text x="92" y="580" style=";fill:#f3f3f3">20</text>
+        <text x="142" y="580" style=";fill:#f3f3f3">21</text>
+        <text x="192" y="580" style=";fill:#f3f3f3">22</text>
+        <text x="242" y="580" style=";fill:#f3f3f3">23</text>
+        <text x="292" y="580" style=";fill:#f3f3f3">24</text>
+        <text x="342" y="580" style=";fill:#f3f3f3">25</text>
+        <text x="42" y="609" style=";fill:#f3f3f3">26</text>
+        <text x="92" y="609" style=";fill:#f3f3f3">27</text>
+        <text x="142" y="609" style=";fill:#f3f3f3">28</text>
+        <text x="192" y="609" style=";fill:#f3f3f3">29</text>
+        <text x="242" y="609" style=";fill:#f3f3f3">30</text>
+        <text x="292" y="609" style=";fill:#f3f3f3">31</text>
+        <text x="342" y="609" class="muted" style=";fill:#adb3bb">1</text>
+        <text x="42" y="633" class="muted" style=";fill:#adb3bb">2</text>
+        <text x="92" y="633" class="muted" style=";fill:#adb3bb">3</text>
+        <text x="142" y="633" class="muted" style=";fill:#adb3bb">4</text>
+        <text x="192" y="633" class="muted" style=";fill:#adb3bb">5</text>
+        <text x="242" y="633" class="muted" style=";fill:#adb3bb">6</text>
+        <text x="292" y="633" class="muted" style=";fill:#adb3bb">7</text>
+        <text x="342" y="633" class="muted" style=";fill:#adb3bb">8</text>
+      </g>
+      <circle cx="242" cy="499" r="2" fill="#009fe8" />
+      <circle cx="192" cy="529" r="2" fill="#60cdff" />
+      <path d="M42 524l3 3-3 3-3-3z M192 582l3 3-3 3-3-3z M242 611l3 3-3 3-3-3z" fill="#f5b544" />
+      <text x="24" y="659" class="muted" style=";fill:#adb3bb">● 额度直接重置　◆ 限额重置券　◇ 预告</text>
+      <g xmlns="http://www.w3.org/2000/svg" transform="translate(326 423)" data-button="left">
+        <rect width="28" height="28" rx="5" fill="transparent" />
+        <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#f3f3f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11.5 2.5L4.5 8l7 5.5" />
+        </svg>
+      </g>
+      <g xmlns="http://www.w3.org/2000/svg" transform="translate(356 423)" data-button="right">
+        <rect width="28" height="28" rx="5" fill="transparent" />
+        <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#f3f3f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4.5 2.5L11.5 8l-7 5.5" />
+        </svg>
+      </g>
+    </g>
+    <path d="M24 772h352" stroke="#45474b" />
+    <text x="24" y="790" class="muted" style=";fill:#adb3bb">10 月 2 日 · 额度直接重置</text>
+    <g transform="translate(0 810)">
+      <g>
+        <text x="12" y="18" class="muted" style=";fill:#adb3bb">Codex Resets ↗</text>
+        <text x="324" y="18" class="muted" style=";fill:#adb3bb">17:17 更新</text>
+      </g>
+    </g>
+  </g>
+  <text x="28" y="474" class="heading" style=";fill:#f3f3f3">这次调整的重点</text>
+  <text x="28" y="510" style=";fill:#f3f3f3">01　大数字只表达剩余时长，说明紧贴其下。</text>
+  <text x="28" y="548" style=";fill:#f3f3f3">02　预计日期有独立标签，不与倒计时挤在同一行。</text>
+  <text x="28" y="586" style=";fill:#f3f3f3">03　重置类型与额度提示同一行，缩减一行高度。</text>
+  <text x="28" y="624" style=";fill:#f3f3f3">04　精简和展开使用同一个倒计时板块，不改变排版。</text>
+  <text x="28" y="662" style=";fill:#f3f3f3">05　板块间留 16 DIP；标题到卡片保留 10 DIP。</text>
+  <text x="28" y="700" class="muted" style=";fill:#adb3bb">倒计时板块 200 DIP，兼顾层级与紧凑；公告仍固定 190 DIP，长文内部滚动。</text>
+  <text x="28" y="730" class="muted" style=";fill:#adb3bb">取消“本地时间 / UTC”标签；时间继续按电脑系统时区转换。</text>
+  <text x="28" y="778" class="heading" style=";fill:#f3f3f3">置顶状态</text>
+  <text x="75" y="825" style=";fill:#f3f3f3">未置顶</text>
+  <text x="297" y="825" style=";fill:#f3f3f3">已置顶</text>
+  <text x="28" y="861" class="muted" style=";fill:#adb3bb">到点后显示最近公告预计时间，保留额度提示，不判断个人重置结果。</text>
+  <text x="28" y="900" class="muted" style=";fill:#adb3bb">所有尺寸为 DIP，实际屏幕大小随 Windows 缩放。尚未修改应用代码。</text>
+  <style>text{font-family:'Segoe UI','Microsoft YaHei',sans-serif;fill:var(--text,#f3f3f3);font-size:14px}.muted{fill:var(--muted,#adb3bb);font-size:11px}.heading{font-weight:600;font-size:16px}.accent{fill:var(--accent,#60cdff)}</style>
+  <g xmlns="http://www.w3.org/2000/svg" transform="translate(28 799)" data-button="pin">
+    <rect width="28" height="28" rx="5" fill="transparent" />
+    <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#f3f3f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <g transform="rotate(35 8 8)">
+        <path d="M4 2h8v2l-1.5 2v4l2 2h-9l2-2V6L4 4z M8 12v3" />
+      </g>
+    </svg>
+  </g>
+  <g xmlns="http://www.w3.org/2000/svg" transform="translate(250 799)" data-button="pinned">
+    <rect width="28" height="28" rx="5" fill="#173a4c" />
+    <svg x="6" y="6" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#60cdff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 2h8v2l-1.5 2v4l2 2h-9l2-2V6L4 4z" fill="#60cdff" stroke="none" />
+      <path d="M8 12v3" />
+    </svg>
+  </g>
+</svg>

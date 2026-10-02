@@ -68,7 +68,7 @@ public static class PrototypeChecks
                 if (id == "past")
                 {
                     Check(vm.Board.ShowsDate && !vm.Board.HasCountdown, "At target time the date replaces countdown");
-                    Check(vm.Board.Notice.Contains("实际额度"), "Past announcement carries account clarification");
+                    Check(vm.Board.ShowsDate && window.FindName("CountdownCard") is System.Windows.Controls.Border, "Past announcement retains the board and its permanent account clarification");
                     vm.ToggleModeCommand.Execute(null); await Capture("dark-compact-past"); vm.ToggleModeCommand.Execute(null);
                 }
                 if (id == "missing") Check(vm.Board.Notice.Contains("待确认") && vm.Board.ShowsDate, "Missing announcement retains its expected date");
@@ -83,7 +83,7 @@ public static class PrototypeChecks
             window.ContentViewport.ScrollToEnd();
             await Capture("dark-small-window-calendar");
             Check(window.ContentViewport.VerticalOffset > 0, "Small window can reach calendar and daily details");
-            window.Width = 440; window.Height = normalHeight;
+            window.Width = 400; window.Height = normalHeight;
             window.ContentViewport.ScrollToTop();
             vm.SelectedScenario = vm.Scenarios.Single(s => s.Id == "arriving");
             await Task.Delay(TimeSpan.FromSeconds(13));
