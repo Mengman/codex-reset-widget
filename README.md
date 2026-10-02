@@ -20,7 +20,6 @@ Before upgrading, exit the previous version from its tray menu. Extract the new 
 - Closing the window hides it in the tray. Use **Exit** in the widget or tray menu to quit.
 - Choose the system, light or dark theme. Dates follow your computer's time zone.
 - After the announced time, show the last expected reset time without claiming that your personal quota has been restored.
-- Open **More → About Codex Reset** for the version, [Mengman's GitHub profile](https://github.com/Mengman), data source and license.
 
 ### Language
 
