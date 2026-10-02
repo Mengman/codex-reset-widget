@@ -9,6 +9,8 @@ Windows 11 桌面重置追踪小组件，展示 Codex 预计重置时间、公�
 - 首次启动默认精简，只展示重置倒计时；展开后依次显示倒计时、公告、日历，并记住用户选择。
 - 公告左右按钮自由翻阅；卡片高度固定，长文在正文内滚动。
 - 拖动标题栏移动窗口；图钉切换置顶。关闭窗口收进托盘，彻底退出通过菜单操作。
+- widget 不出现在任务栏和 Alt+Tab 中；点击托盘图标可恢复窗口或将它唤到前台。
+- “…” → “开机启动”默认关闭，用户勾选后在登录 Windows 时自动启动，取消勾选即可关闭。
 - 支持跟随系统、浅色与深色主题；日期自动转换到电脑系统时区。
 - 到达预计时间后显示最近公告的预计时间，不判断个人账户额度是否恢复。
 
@@ -19,7 +21,7 @@ Windows 11 桌面重置追踪小组件，展示 Codex 预计重置时间、公�
 项目使用 C#、WPF、.NET 10，SDK 版本由 `global.json` 锁定为 10.0.401。SDK 可安装到系统或项目 `.tools/dotnet/`。
 
 ```powershell
-.\scripts\build.ps1                    # Release 编译与 110 项功能测试
+.\scripts\build.ps1                    # Release 编译与 119 项功能测试
 .\scripts\build.ps1 -Publish -RunUiChecks -RunDesktopChecks -RunLiveChecks
 ```
 
@@ -64,7 +66,7 @@ CI 使用 Windows Server 托管环境；真实桌面、托盘、多屏和联网�
 
 Data from [Codex Resets](https://codex-resets.com/)。应用直接读取该服务的状态与历史 API，使用其解析后的预计时间，不自行抓取 X 动态或预测重置时间。无需登录 OpenAI，也不读取个人额度。实际额度以 Codex 为准。
 
-设置、缓存与日志位于 `%LocalAppData%/CodexResetWidget/`。第一版提供 Windows 11 x64 便携包；自启动、通知、历史筛选、备用数据源、ARM64 和安装包属于后续候选功能。
+设置、缓存与日志位于 `%LocalAppData%/CodexResetWidget/`。第一版提供 Windows 11 x64 便携包；通知、历史筛选、备用数据源、ARM64 和安装包属于后续候选功能。
 
 
 ## 语言

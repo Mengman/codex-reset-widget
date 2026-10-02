@@ -80,7 +80,6 @@
   "Action.ModeToggle": "Toggle compact or expanded mode",
   "Action.MoreTooltip": "Theme, language, about and exit",
   "Action.More": "More options",
-  "Action.Minimize": "Minimize",
   "Action.Hide": "Hide to tray",
   "Action.Exit": "Exit",
   "Action.CloseTooltip": "Close window and hide to tray",
@@ -150,5 +149,11 @@
   "Announcement.OlderTooltip": "Older announcement",
   "Announcement.OlderAccessible": "Read older announcement",
   "Announcement.NewerTooltip": "Newer announcement",
-  "Announcement.NewerAccessible": "Read newer announcement"
+  "Announcement.NewerAccessible": "Read newer announcement",
+  "Startup.Menu": "Start with Windows",
+  "Startup.Tooltip": "Start automatically when you sign in. Off by default.",
+  "Startup.ReadFailed": "Could not read the Windows startup setting.",
+  "Startup.WriteFailed": "Could not change the Windows startup setting. Check permissions and the executable path.",
+  "Startup.DisabledByWindows": "Windows has disabled this startup entry. Enable CodexResetWidget in Settings > Apps > Startup first.",
+  "Startup.OtherCopy": "Startup points to another copy. Turn this option off, then on to use the current executable."
 }

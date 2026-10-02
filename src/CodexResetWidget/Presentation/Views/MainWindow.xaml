@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Codex Reset" Width="400" Height="840" MinWidth="370" MinHeight="260"
-        WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize" ShowInTaskbar="False"
         Background="{DynamicResource WindowBrush}" Foreground="{DynamicResource TextBrush}"
         Icon="{StaticResource AppLogo}"
         FontFamily="Segoe UI Variable, Segoe UI, Microsoft YaHei UI" UseLayoutRounding="True" TextOptions.TextFormattingMode="Display" Topmost="{Binding IsPinned}">
@@ -34,11 +34,11 @@
                   <MenuItem x:Name="EnglishLanguageItem" Header="{DynamicResource Text.Language.English}" Tag="English" IsCheckable="True" Click="SelectLanguage" />
                   <MenuItem x:Name="ChineseLanguageItem" Header="{DynamicResource Text.Language.Chinese}" Tag="SimplifiedChinese" IsCheckable="True" Click="SelectLanguage" />
                 </MenuItem>
+                <MenuItem x:Name="StartupItem" Header="{DynamicResource Text.Startup.Menu}" ToolTip="{DynamicResource Text.Startup.Tooltip}" IsCheckable="True" Click="ToggleStartup" />
                 <Separator />
                 <MenuItem Header="{DynamicResource Text.About.Title}" Click="ShowAbout"/>
                 <MenuItem Header="{DynamicResource Text.Source.Menu}" Click="OpenSource" />
                 <Separator />
-                <MenuItem Header="{DynamicResource Text.Action.Minimize}" Click="MinimizeWindow" />
                 <MenuItem Header="{DynamicResource Text.Action.Hide}" Click="HideWindow" />
                 <MenuItem Header="{DynamicResource Text.Action.Exit}" Click="ExitWindow" />
               </ContextMenu>

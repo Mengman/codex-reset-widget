@@ -6,6 +6,7 @@ using System.Windows.Interop;
 using System.Windows.Threading;
 using Microsoft.Win32;
 using CodexResetWidget.Domain;
+using CodexResetWidget.Application;
 using CodexResetWidget.Infrastructure.Storage;
 using CodexResetWidget.Platform;
 using CodexResetWidget.Presentation.ViewModels;
@@ -19,12 +20,14 @@ public partial class MainWindow : Window
     public ScrollViewer ContentViewport => ContentScroll;
     public bool IsTicking => _timer.IsEnabled;
     public bool HasTray => _tray?.IsVisible == true;
+    public bool StartsWithWindows => _startup?.IsEnabled == true;
     public bool BackdropEnabled { get; private set; }
     private readonly DispatcherTimer _timer;
     private readonly DispatcherTimer _saveTimer;
     private readonly SettingsStore? _store;
     private readonly WindowPlacementService _placement;
     private readonly bool _enableBackdrop;
+    private readonly StartupService? _startup;
     private DesktopSettings _settings;
     private TrayService? _tray;
     private bool _restoring = true;
@@ -34,10 +37,12 @@ public partial class MainWindow : Window
     private int _ticks;
 
     public MainWindow(MainViewModel model, ThemeService theme, SettingsStore? store = null,
-        DesktopSettings? settings = null, bool enableTray = false, bool enableBackdrop = false)
+        DesktopSettings? settings = null, bool enableTray = false, bool enableBackdrop = false, StartupService? startup = null)
     {
         Model = model; Theme = theme; _store = store; _settings = settings ?? new(); _enableBackdrop = enableBackdrop;
+        _startup = startup;
         InitializeComponent(); DataContext = model;
+        UpdateStartupMenu();
         Language = System.Windows.Markup.XmlLanguage.GetLanguage(L10n.Culture.Name);
         Model.RefreshLanguage(); UpdateLanguageMenu();
         L10n.Changed += LanguageChanged;
@@ -148,7 +153,7 @@ public partial class MainWindow : Window
             { Compact = Model.IsCompact, Pinned = Model.IsPinned, Theme = Theme.Mode.ToString(), Language = L10n.Mode.ToString() };
         _store.Save(_settings); UpdateNotice();
     }
-    private void UpdateNotice() => DesktopNotice.Text = L10n.Message(_store?.Warning);
+    private void UpdateNotice() => DesktopNotice.Text = L10n.Message(_startup?.Warning ?? _store?.Warning);
     public void HideToTray()
     {
         if (_tray is null) { WindowState = WindowState.Minimized; return; }
@@ -158,11 +163,11 @@ public partial class MainWindow : Window
             _tray.ExplainClose(); _settings = _settings with { TrayHintShown = true };
             _store?.Save(_settings); UpdateNotice();
         }
-        Hide(); ShowInTaskbar = false;
+        Hide();
     }
     public void ShowFromTray()
     {
-        ShowInTaskbar = true; Show(); WindowState = WindowState.Normal;
+        Show(); WindowState = WindowState.Normal;
         _placement.EnsureVisible(); Activate(); RefreshTime(); UpdateTimer();
     }
     private void WindowClosing(object? sender, CancelEventArgs e)
@@ -181,7 +186,19 @@ public partial class MainWindow : Window
     private void PreferenceChanged(object sender, UserPreferenceChangedEventArgs e) => Dispatcher.BeginInvoke(() =>
     { Theme.Apply(Theme.Mode); LanguageService.RefreshSystemLanguage(); RefreshTime(); });
     private void DisplayChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(_placement.EnsureVisible);
-    private void ShowMenu(object sender, RoutedEventArgs e) { MoreButton.ContextMenu.PlacementTarget = MoreButton; MoreButton.ContextMenu.IsOpen = true; }
+    private void ShowMenu(object sender, RoutedEventArgs e) { UpdateStartupMenu(); UpdateNotice(); MoreButton.ContextMenu.PlacementTarget = MoreButton; MoreButton.ContextMenu.IsOpen = true; }
+    private void UpdateStartupMenu()
+    {
+        _startup?.Refresh();
+        StartupItem.IsEnabled = _startup is not null;
+        StartupItem.IsChecked = _startup?.IsEnabled == true;
+    }
+    private void ToggleStartup(object sender, RoutedEventArgs e)
+    {
+        _startup?.SetEnabled(StartupItem.IsChecked);
+        StartupItem.IsChecked = _startup?.IsEnabled == true;
+        UpdateNotice(); MoreButton.ContextMenu.IsOpen = false;
+    }
     private void SelectTheme(object sender, RoutedEventArgs e) { if (sender is MenuItem { Tag: string tag } && Enum.TryParse<AppThemeMode>(tag, out var mode)) Theme.Apply(mode); }
     private void SelectLanguage(object sender, RoutedEventArgs e)
     {
@@ -205,7 +222,6 @@ public partial class MainWindow : Window
         if (Model.Announcement.CurrentEvent?.SourceUrl is { Scheme: "https" or "http" } url)
             Process.Start(new ProcessStartInfo(url.AbsoluteUri) { UseShellExecute = true });
     }
-    private void MinimizeWindow(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
     private void HideWindow(object sender, RoutedEventArgs e) => HideToTray();
     private void CloseWindow(object sender, RoutedEventArgs e) => Close();
     private void ExitWindow(object sender, RoutedEventArgs e) => ExitApplication();

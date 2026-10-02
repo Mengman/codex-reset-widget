@@ -80,7 +80,6 @@
   "Action.ModeToggle": "切换窗口模式",
   "Action.MoreTooltip": "主题、关于与退出",
   "Action.More": "更多菜单",
-  "Action.Minimize": "最小化",
   "Action.Hide": "收进托盘",
   "Action.Exit": "退出",
   "Action.CloseTooltip": "关闭窗口，正式模式收进托盘",
@@ -150,5 +149,11 @@
   "Announcement.OlderTooltip": "较早的公告",
   "Announcement.OlderAccessible": "阅读较早公告",
   "Announcement.NewerTooltip": "较新的公告",
-  "Announcement.NewerAccessible": "阅读较新公告"
+  "Announcement.NewerAccessible": "阅读较新公告",
+  "Startup.Menu": "开机启动",
+  "Startup.Tooltip": "登录 Windows 后自动启动，默认关闭。",
+  "Startup.ReadFailed": "无法读取 Windows 开机启动设置。",
+  "Startup.WriteFailed": "无法修改开机启动设置，请检查权限与程序路径。",
+  "Startup.DisabledByWindows": "Windows 已禁用此启动项，请先在“设置 → 应用 → 启动”中启用 CodexResetWidget。",
+  "Startup.OtherCopy": "开机启动指向另一份程序，请关闭此选项后重新开启，改用当前程序。"
 }

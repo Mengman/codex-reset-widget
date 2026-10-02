@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using CodexResetWidget.Domain;
+using CodexResetWidget.Application;
 using CodexResetWidget.Infrastructure.Storage;
 using CodexResetWidget.Platform;
 
@@ -14,6 +15,14 @@ namespace CodexResetWidget.Presentation.Views;
 
 public static class DesktopChecks
 {
+    public static StartupService CreateStartupService() => new(new MemoryStartupRegistration(), Environment.ProcessPath!);
+    private sealed class MemoryStartupRegistration : IStartupRegistration
+    {
+        private string? _command;
+        public string? ReadCommand() => _command;
+        public bool IsDisabledByWindows => false;
+        public void WriteCommand(string? command) => _command = command;
+    }
     public static async Task RunAsync(MainWindow window, SettingsStore store, string directory)
     {
         Directory.CreateDirectory(directory);
@@ -36,6 +45,7 @@ public static class DesktopChecks
         {
             LanguageService.Apply(LanguageMode.English);
             await Idle();
+            Check(!window.ShowInTaskbar && window.HasTray, "Startup keeps the tray icon and excludes the widget from taskbar and Alt+Tab");
             if (vm.IsCompact) vm.ToggleModeCommand.Execute(null);
             vm.ToolsOpen = false; vm.SelectedScenario = vm.Scenarios.Single(s => s.Id == "future");
             window.Theme.Apply(AppThemeMode.Dark);
@@ -44,8 +54,17 @@ public static class DesktopChecks
             var menu = ((Button)window.FindName("MoreButton")).ContextMenu;
             menu.PlacementTarget = (Button)window.FindName("MoreButton"); menu.IsOpen = true; await Idle();
             var headers = menu.Items.OfType<MenuItem>().Select(i => i.Header?.ToString() ?? "").ToArray();
-            Check(!headers.Any(h => h.Contains("Demo") || h.Contains("Check")), "Product menu contains no demo or debugging actions");
+            Check(!headers.Any(h => h.Contains("Demo") || h.Contains("Check") || h == "Minimize"), "Product menu contains no demo, debugging, or minimize actions");
             Check(headers.Contains(L10n.Get("About.Title")), "Product menu exposes About");
+            var startupItem = (MenuItem)window.FindName("StartupItem");
+            Check(startupItem.IsEnabled && !startupItem.IsChecked, "Startup is off by default in the menu");
+            var startupPeer = System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(startupItem);
+            var startupInvoke = (System.Windows.Automation.Provider.IInvokeProvider)startupPeer.GetPattern(System.Windows.Automation.Peers.PatternInterface.Invoke);
+            startupInvoke.Invoke(); await Idle();
+            Check(startupItem.IsChecked && window.StartsWithWindows, "Explicit startup menu selection enables registration in the isolated provider");
+            menu.IsOpen = true; await Idle(); startupInvoke.Invoke(); await Idle();
+            Check(!startupItem.IsChecked && !window.StartsWithWindows && window.HasTray, "Startup menu can remove registration without changing tray visibility");
+            menu.IsOpen = true; await Idle();
             LanguageService.Apply(LanguageMode.SimplifiedChinese); await Idle();
             var languageMenu = (MenuItem)window.FindName("LanguageMenuItem");
             var languagePeer = System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(languageMenu);
@@ -219,15 +238,17 @@ public static class DesktopChecks
             Check(store.Load().PhysicalLeft is not null && store.Load().Monitor is not null, "Window position and monitor persist");
             window.WindowState = WindowState.Minimized; await Idle();
             Check(!window.IsTicking, "Minimizing stops the display timer");
+            Check(!window.ShowInTaskbar && window.HasTray, "Minimizing retains only the tray entry");
             window.WindowState = WindowState.Normal; await Idle();
             Check(window.IsTicking, "Restoring starts the display timer");
             vm.SelectedScenario = vm.Scenarios.Single(s => s.Id == "arriving");
             window.Close(); await Idle();
-            Check(!window.IsVisible && window.HasTray && !window.IsTicking, "Close hides to tray and stops the display timer");
+            Check(!window.IsVisible && window.HasTray && !window.IsTicking && !window.ShowInTaskbar, "Close hides to tray and stops the display timer");
             Check(store.Load().TrayHintShown, "First close records the tray explanation");
             await Task.Delay(TimeSpan.FromSeconds(13));
             window.ShowFromTray(); await Idle();
             Check(window.IsVisible && window.IsTicking && vm.Board.ShowsDate, "Tray restore recomputes time after crossing the expected target");
+            Check(!window.ShowInTaskbar && window.HasTray, "Tray restore does not add the widget to taskbar or Alt+Tab");
             Check(window.MoveFocus(new TraversalRequest(FocusNavigationDirection.First)), "Window exposes a keyboard focus target");
         }
         catch (Exception error) { failure = error.ToString(); }

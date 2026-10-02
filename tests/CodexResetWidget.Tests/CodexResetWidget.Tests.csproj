@@ -7,6 +7,7 @@
     <Compile Include="../../src/CodexResetWidget/Domain/**/*.cs" Link="Domain/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="../../src/CodexResetWidget/Application/DemoData.cs" Link="DemoData.cs" />
     <Compile Include="../../src/CodexResetWidget/Application/SyncController.cs" Link="SyncController.cs" />
+    <Compile Include="../../src/CodexResetWidget/Application/StartupService.cs" Link="StartupService.cs" />
     <Compile Include="../../src/CodexResetWidget/Infrastructure/**/*.cs" Link="Infrastructure/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="../../src/CodexResetWidget/Platform/Clock/IClock.cs" Link="IClock.cs" />
   </ItemGroup>

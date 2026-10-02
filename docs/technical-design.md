@@ -446,3 +446,15 @@ P1 通知可包括新预告、提前 10 分钟和到达目标时间。以“来�
 `Platform/LanguageService` 通过 Windows `GetUserDefaultUILanguage` 读取用户显示语言，更新 WPF 动态资源和窗口的 Language。MainViewModel 刷新各板块的本地化属性，TrayService 同步菜单和提示，已有关于窗口同步版本标签。公告正文、UTC 数据和系统时区保持独立。
 
 DesktopSettings 增加可选 Language：System、English、SimplifiedChinese，仍沿用格式版本 1。旧文件缺少该字段时默认 System。新缓存提示保存资源键及参数；旧缓存中已渲染的已知提示可重新映射词条。
+
+## 托盘与开机启动
+
+主窗口固定 ShowInTaskbar=False，从托盘恢复时保持该属性；WPF 的窗口所有者机制同时排除任务栏与 Alt+Tab。托盘图标在窗口显示、隐藏及最小化时均保留，点击后恢复并激活窗口。
+
+StartupService 通过 IStartupRegistration 读取系统状态，菜单为双语可勾选项。默认无注册；构造、启动和打开菜单只读取，只有用户点击才写入。状态由 Windows 启动项决定，不在 settings.json 中复制布尔值。
+
+WindowsStartupRegistration 使用当前用户的 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`，仅维护 CodexResetWidget 值。命令引用当前 EXE 的完整路径并加引号，超过 Windows Run 命令长度限制时拒绝并提示。注册发生在用户登录后，参见 [Windows Run 文档](https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys)。
+
+禁用只删除该值，不改其他应用。读取 Windows StartupApproved 中的禁用状态时不修改审批记录；系统已禁用的项需先在 Windows 启动设置中启用。便携目录移动或升级到另一路径时显示提示，由用户关闭再开启以更新路径；不自动重新注册。
+
+测试通过内存注册替身验证授权边界、状态重载与失败回退，WPF 菜单检查同样使用替身。真实用户的启动项不会因检查参数而修改。

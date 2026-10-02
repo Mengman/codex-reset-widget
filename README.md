@@ -18,6 +18,8 @@ Before upgrading, exit the previous version from its tray menu. Extract the new 
 - Browse announcements with the previous and next buttons. Long posts scroll inside a fixed-height card.
 - Drag the title bar to move the window. Use the pin button to keep it on top.
 - Closing the window hides it in the tray. Use **Exit** in the widget or tray menu to quit.
+- The widget stays out of the taskbar and Alt+Tab. Click its tray icon to bring it forward or restore it.
+- **More → Start with Windows** enables automatic launch when you sign in. It is off by default and changes only after you choose it.
 - Choose the system, light or dark theme. Dates follow your computer's time zone.
 - After the announced time, show the last expected reset time without claiming that your personal quota has been restored.
 
@@ -79,4 +81,4 @@ The detailed project documents currently use Simplified Chinese:
 
 Data from [Codex Resets](https://codex-resets.com/). The app reads its status and history APIs and uses the parsed expected time. It does not scrape X, predict reset dates, sign in to OpenAI or read your personal quota. **Check Codex for your actual quota.**
 
-Settings, cache and bounded logs are stored under `%LocalAppData%/CodexResetWidget/`. The current package targets Windows 11 x64. Startup registration, notifications, history filters, alternative sources, ARM64 and an installer are future options.
+Settings, cache and bounded logs are stored under `%LocalAppData%/CodexResetWidget/`. The current package targets Windows 11 x64. Notifications, history filters, alternative sources, ARM64 and an installer are future options.

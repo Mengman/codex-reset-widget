@@ -40,7 +40,8 @@ public partial class App : System.Windows.Application
         theme.Apply(Enum.Parse<AppThemeMode>(settings.Theme));
         model.RestoreDesktop(settings.Compact, settings.Pinned);
         var window = new MainWindow(model, theme, store, settings, enableTray: !demo || desktopIndex >= 0,
-            enableBackdrop: captureIndex < 0 && desktopIndex < 0);
+            enableBackdrop: captureIndex < 0 && desktopIndex < 0, startup: demo ? DesktopChecks.CreateStartupService()
+                : new StartupService(new WindowsStartupRegistration(), Environment.ProcessPath!));
         MainWindow = window;
         // Demo and capture modes never construct the production provider or cache.
         if (captureIndex >= 0 && captureIndex + 1 < e.Args.Length)

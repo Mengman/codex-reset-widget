@@ -10,6 +10,10 @@ Language
 The interface follows your Windows display language by default. Simplified and Traditional Chinese select Simplified Chinese; all other languages select English.
 More → Language lets you select system language, English or Simplified Chinese. The choice is saved and takes effect immediately. Original post text is unchanged.
 
+Start with Windows
+Off by default. Choose More → Start with Windows to enable launch after signing in; clear the checkbox to remove it. The entry applies to your Windows account and stores the current executable path. Normal startup never creates or repairs this entry automatically.
+After moving the portable folder or upgrading to another directory, turn this option off and on in the new copy. If Windows has disabled the entry in Settings > Apps > Startup, enable it there first.
+
 Window and reading controls
 - Drag the title bar, app name or logo to move the window.
 - Use the pin button for always on top: outline and tilted means off; solid blue and upright means on.
@@ -18,6 +22,7 @@ Window and reading controls
 - Navigate calendar months with the arrows; Today returns to the current month. Select a date to read its records.
 - More provides theme, language, About and window controls. The refresh button checks announcements and history.
 - Closing hides the widget in the tray; click the tray icon to restore it. Use Exit in either menu to quit.
+- The widget has no taskbar button or Alt+Tab entry, including after restoring from the tray. Click the tray icon to restore or bring it forward.
 - Win+D follows normal window behavior. Hidden or minimized windows stop second-by-second UI updates but retain background refresh.
 - Mode, size, position, pin state, theme and language selection are saved.
 
@@ -41,9 +46,9 @@ Upgrade
 Back up the user data folder while the app is closed if needed. Unsupported or damaged data falls back with a notice instead of preventing startup.
 
 Removal
-Exit the app and delete its extracted folder. User data is retained.
+Turn off Start with Windows first, then exit the app and delete its extracted folder. User data is retained.
 To remove settings, cache and logs too, delete %LocalAppData%\CodexResetWidget\ after exiting.
-This version creates no startup registration, service or installer entry.
+The optional startup entry is HKCU\Software\Microsoft\Windows\CurrentVersion\Run, value CodexResetWidget. No service or installer entry is created.
 
 About and licensing
 More → About Codex Reset shows the version, author, source and license.

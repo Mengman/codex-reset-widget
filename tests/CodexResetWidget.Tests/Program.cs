@@ -15,6 +15,7 @@ Include(await JsonCacheStoreTests.RunAsync());
 Include(await StorageCompatibilityTests.RunAsync());
 Include(await DiagnosticLogTests.RunAsync());
 Include(LocalizationTests.Run());
+Include(StartupTests.Run());
 
 Console.WriteLine($"{passed} passed, {failed} failed");
 return failed == 0 ? 0 : 1;
