@@ -11,9 +11,7 @@
           <g>
             <g transform="translate(12 8)">
               <g>
-                <rect width="26" height="26" rx="6" fill="#009fe8" />
-                <path d="M19 7a9 9 0 1 1-7-3" stroke="white" stroke-width="2.2" fill="none" />
-                <path d="M18 3v6h-6" stroke="white" stroke-width="2.2" fill="none" />
+                <g transform="scale(0.8125)"><rect width="32" height="32" rx="8" fill="#0067C0"/><g fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4h6 M16 7v2 M24 13A9 9 0 1 1 16 9 M16 18l3.5-3.5"/></g><circle cx="16" cy="18" r="1.5" fill="white"/></g>
               </g>
             </g>
             <text x="46" y="27" class="heading" style=";fill:#f3f3f3">Codex Reset</text>
@@ -86,9 +84,7 @@
           <g>
             <g transform="translate(12 8)">
               <g>
-                <rect width="26" height="26" rx="6" fill="#009fe8" />
-                <path d="M19 7a9 9 0 1 1-7-3" stroke="white" stroke-width="2.2" fill="none" />
-                <path d="M18 3v6h-6" stroke="white" stroke-width="2.2" fill="none" />
+                <g transform="scale(0.8125)"><rect width="32" height="32" rx="8" fill="#0067C0"/><g fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4h6 M16 7v2 M24 13A9 9 0 1 1 16 9 M16 18l3.5-3.5"/></g><circle cx="16" cy="18" r="1.5" fill="white"/></g>
               </g>
             </g>
             <text x="46" y="27" class="heading" style=";fill:#1a1a1a">Codex Reset</text>
@@ -159,9 +155,7 @@
       <g>
         <g transform="translate(12 8)">
           <g>
-            <rect width="26" height="26" rx="6" fill="#009fe8" />
-            <path d="M19 7a9 9 0 1 1-7-3" stroke="white" stroke-width="2.2" fill="none" />
-            <path d="M18 3v6h-6" stroke="white" stroke-width="2.2" fill="none" />
+            <g transform="scale(0.8125)"><rect width="32" height="32" rx="8" fill="#0067C0"/><g fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4h6 M16 7v2 M24 13A9 9 0 1 1 16 9 M16 18l3.5-3.5"/></g><circle cx="16" cy="18" r="1.5" fill="white"/></g>
           </g>
         </g>
         <text x="46" y="27" class="heading" style=";fill:#f3f3f3">Codex Reset</text>

@@ -25,10 +25,10 @@ SDK 可安装到系统或项目的 `.tools/dotnet/`。本工作区已配置本�
 - [M2 验收记录](docs/milestones/m2-review.md)：联网、缓存恢复与同步边界验证。
 - [M3 验收记录](docs/milestones/m3-review.md)：托盘、位置恢复、主题与桌面操作验证。
 - [视觉与交互规范](docs/design/visual-spec.md)：Windows 11 深浅色设计、布局、颜色及状态展示。
-- [设计图](docs/design/windows11-light-dark.png)：浅色和深色版本对照。
-- [设计图生成说明](docs/design/image-generation.md)：生成方式、提示词与使用边界。
+- [当前布局方案](docs/design/m3-ui-revision-proposal.md)：已验收的 V4 尺寸、公告翻阅与统一图标。
+- [计时器 Logo](docs/design/countdown-logo.svg)：当前应用的蓝白矢量标识。
 
-![Windows 11 浅色与深色设计图](docs/design/windows11-light-dark.png)
+![当前 UI 布局示例](docs/design/m3-ui-revision-layout.png)
 
 设计图中的日期、倒计时和历史记录属于示例内容，不代表当前状态。实际实现以需求文档和技术设计定义的数据语义为准。
 

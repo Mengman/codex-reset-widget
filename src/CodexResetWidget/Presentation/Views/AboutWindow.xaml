@@ -10,7 +10,7 @@
       <StackPanel Grid.Column="1" VerticalAlignment="Center"><TextBlock Text="Codex Reset" FontSize="20" FontWeight="SemiBold"/><TextBlock x:Name="VersionLabel" Style="{StaticResource SecondaryText}" Margin="0,4,0,0"/></StackPanel>
     </Grid>
     <TextBlock Text="Windows 桌面重置追踪小组件" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
-    <TextBlock Text="展示公开公告、预计重置时间与历史日历，时间自动转换为电脑当前时区。" TextWrapping="Wrap" FontSize="13" LineHeight="20"/>
+    <TextBlock Text="展示 Codex 预计重置时间、 公开公告与重置历史。" TextWrapping="Wrap" FontSize="13" LineHeight="20"/>
     <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,16,0,12">
       <StackPanel>
         <Button Content="GitHub · Mengman ↗" Click="OpenGitHub" HorizontalAlignment="Left" Foreground="{DynamicResource AccentBrush}" Padding="0" MinHeight="28" AutomationProperties.Name="打开 Mengman 的 GitHub 主页" ToolTip="https://github.com/Mengman"/>
