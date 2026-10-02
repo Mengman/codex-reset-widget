@@ -60,12 +60,18 @@ public partial class MainWindow : Window
         Top = Math.Clamp(Top, SystemParameters.WorkArea.Top, Math.Max(SystemParameters.WorkArea.Top, SystemParameters.WorkArea.Bottom - Height));
     }
     private void TimeChanged(object? sender, EventArgs e) => DispatchTimeUpdate();
-    private void PowerChanged(object sender, PowerModeChangedEventArgs e) { if (e.Mode == PowerModes.Resume) DispatchTimeUpdate(); }
+    private void PowerChanged(object sender, PowerModeChangedEventArgs e) { if (e.Mode == PowerModes.Resume) { DispatchTimeUpdate(); Model.RefreshAfterResume(); } }
     private void DispatchTimeUpdate() => Dispatcher.BeginInvoke(() => { Model.RefreshSystemTimeZone(); Model.Tick(); });
     private void PreferenceChanged(object sender, UserPreferenceChangedEventArgs e) => Dispatcher.BeginInvoke(() => { if (Theme.Mode == AppThemeMode.System) Theme.Apply(AppThemeMode.System); Model.RefreshSystemTimeZone(); });
     private void ShowMenu(object sender, RoutedEventArgs e) { MoreButton.ContextMenu.PlacementTarget = MoreButton; MoreButton.ContextMenu.IsOpen = true; }
     private void SelectTheme(object sender, RoutedEventArgs e) { if (sender is MenuItem { Tag: string tag } && Enum.TryParse<AppThemeMode>(tag, out var mode)) Theme.Apply(mode); }
-    private void ToggleTools(object sender, RoutedEventArgs e) => Model.ToolsOpen = !Model.ToolsOpen;
+    private void ToggleTools(object sender, RoutedEventArgs e) { if (Model.IsDemo) Model.ToolsOpen = !Model.ToolsOpen; }
+    private void OpenDemo(object sender, RoutedEventArgs e) => Process.Start(new ProcessStartInfo(Environment.ProcessPath!) { Arguments = "--demo", UseShellExecute = true });
+    private void OpenAnnouncement(object sender, RoutedEventArgs e)
+    {
+        if (Model.Announcement.CurrentEvent?.SourceUrl is { Scheme: "https" or "http" } url)
+            Process.Start(new ProcessStartInfo(url.AbsoluteUri) { UseShellExecute = true });
+    }
     private async void RunPrototypeChecks(object sender, RoutedEventArgs e) => await PrototypeChecks.RunAsync(this,
         System.IO.Path.GetFullPath(System.IO.Path.Combine(AppContext.BaseDirectory, "..", "captures")));
     private void MinimizeWindow(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;

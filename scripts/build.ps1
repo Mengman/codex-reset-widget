@@ -26,7 +26,7 @@ if (Test-Path -LiteralPath $localFeed) {
 if ($LASTEXITCODE -ne 0) { throw 'Dependency restore failed.' }
 & $dotnetPath build CodexResetWidget.sln -c Release --no-restore
 if ($LASTEXITCODE -ne 0) { throw 'Release build failed.' }
-$milestoneRoot = Join-Path $projectRoot 'artifacts\milestones\m1'
+$milestoneRoot = Join-Path $projectRoot 'artifacts\milestones\m2'
 New-Item -ItemType Directory -Force $milestoneRoot | Out-Null
 & $dotnetPath tests\CodexResetWidget.Tests\bin\Release\net10.0\CodexResetWidget.Tests.dll |
     Tee-Object -FilePath (Join-Path $milestoneRoot 'domain-tests.txt')
@@ -38,7 +38,7 @@ if ($Publish -or $RunUiChecks) {
     & $dotnetPath publish src\CodexResetWidget\CodexResetWidget.csproj -c Release -r win-x64 --self-contained true -o $portableDirectory --no-restore
     if ($LASTEXITCODE -ne 0) { throw 'Portable publish failed.' }
     Copy-Item -LiteralPath (Join-Path $projectRoot 'LICENSE') -Destination $portableDirectory -Force
-    Copy-Item -LiteralPath (Join-Path $projectRoot 'docs\milestones\m1-usage.txt') -Destination (Join-Path $portableDirectory 'README.txt') -Force
+    Copy-Item -LiteralPath (Join-Path $projectRoot 'docs\milestones\m2-usage.txt') -Destination (Join-Path $portableDirectory 'README.txt') -Force
     $runtimeManifest = Get-Content -LiteralPath (Join-Path $portableDirectory 'CodexResetWidget.runtimeconfig.json') -Raw | ConvertFrom-Json
     foreach ($framework in $runtimeManifest.runtimeOptions.includedFrameworks) {
         $runtimePackageId = $framework.name.ToLowerInvariant() + '.runtime.win-x64'
@@ -49,7 +49,7 @@ if ($Publish -or $RunUiChecks) {
         if ($licenseFiles.Count -eq 0) { throw "Runtime license missing: $runtimePackageId" }
         foreach ($licenseFile in $licenseFiles) { Copy-Item -LiteralPath $licenseFile.FullName -Destination $licenseDirectory -Force }
     }
-    $archivePath = Join-Path $milestoneRoot 'CodexResetWidget-0.1.0-m1-win-x64.zip'
+    $archivePath = Join-Path $milestoneRoot 'CodexResetWidget-0.2.0-m2-win-x64.zip'
     Compress-Archive -Path (Join-Path $portableDirectory '*') -DestinationPath $archivePath -Force
     Get-FileHash -LiteralPath $archivePath -Algorithm SHA256 | Format-List
 }

@@ -115,5 +115,7 @@ Test("Watch expires at its exact boundary", () => Equal(BoardStatus.NoAnnounceme
 Test("All demo scenarios evaluate without exceptions", () => {
     foreach (var scenario in DemoData.Scenarios) { var s = Sample(scenario.Id); _ = service.Evaluate(s, now); _ = calendar.BuildMonth(s, new(2026, 10, 1), china, now); }
 });
+var integration = await M2Checks.RunAsync();
+passed += integration.Passed; failed += integration.Failed;
 Console.WriteLine($"{passed} passed, {failed} failed");
 return failed == 0 ? 0 : 1;

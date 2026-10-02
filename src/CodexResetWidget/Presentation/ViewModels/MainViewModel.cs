@@ -14,6 +14,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private readonly SystemTimeZoneService _zones;
     private readonly ResetStateService _states = new();
     private readonly CalendarService _calendar = new();
+    private readonly SyncController? _sync;
     private DemoScenario _scenario = DemoData.Scenarios[0];
     private ZoneOption _zoneOption;
     private WidgetSnapshot _snapshot;
@@ -30,8 +31,16 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public CalendarViewModel Calendar { get; } = new();
     public WidgetSnapshot Snapshot => _snapshot;
     public TimeZoneInfo CurrentZone => _zones.CurrentZone;
-    public string DemoLabel => "M1 原型 · 模拟数据";
-    public string FooterTime => _snapshot.StatusHealth.LastSuccessAtUtc is { } at ? $"模拟检查于 {TimeDisplay.DateTime(at, _zones.CurrentZone)}" : "尚无成功检查";
+    public bool IsDemo => _sync is null;
+    public string DemoLabel => IsDemo ? "演示模式 · 模拟数据 · 不查询个人额度" : "公开公告 · 实际额度以 Codex 为准";
+    public string FooterTime => _snapshot.StatusHealth.IsLoading ? "正在检查公告…" : _snapshot.StatusHealth.LastSuccessAtUtc is { } at
+        ? $"{(IsDemo ? "模拟检查于" : "公告检查于")} {TimeDisplay.DateTime(at, _zones.CurrentZone)}" : "尚无成功检查";
+    public string HistoryHealthText => IsDemo ? "" : _snapshot.HistoryHealth.IsLoading ? "正在加载历史记录…"
+        : _snapshot.HistoryHealth.LastError is { } error ? $"历史：{error}" : _snapshot.HistoryHealth.LastSuccessAtUtc is { } at
+        ? $"{(_snapshot.HistoryHealth.IsFromCache ? "缓存 · " : "")}{(_snapshot.History.IsComplete ? "历史检查于" : "历史尚未完整 · 检查于")} {TimeDisplay.DateTime(at, _zones.CurrentZone)}{(_snapshot.HistoryHealth.IsStale ? " · 可能已过期" : "")}" : "历史记录尚未加载";
+    public string CacheWarning => _sync?.CacheWarning ?? "";
+    public string UpstreamTime => _snapshot.Status?.GeneratedAtUtc is { } at
+        ? $"上游响应生成于 {TimeDisplay.DateTime(at, _zones.CurrentZone, true)}；检查成功不代表上游已采集最新公告。" : "上游尚未提供生成时间。";
     public string FooterZone => TimeDisplay.ZoneLabel(_clock.UtcNow, _zones.CurrentZone, _zones.FollowsSystem);
     public bool IsCompact { get => _compact; private set { if (Set(ref _compact, value)) { Changed(nameof(IsExpanded)); Changed(nameof(ModeAction)); } } }
     public bool IsExpanded => !IsCompact;
@@ -60,16 +69,17 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public ICommand ToggleToolsCommand { get; }
     public event EventHandler? ModeChanged;
 
-    public MainViewModel(IClock clock, SystemTimeZoneService zones)
+    public MainViewModel(IClock clock, SystemTimeZoneService zones, SyncController? sync = null)
     {
-        _clock = clock; _zones = zones; _zoneOption = Zones[0];
-        _snapshot = DemoData.Create(_scenario.Id, clock.UtcNow, zones.CurrentZone);
+        _clock = clock; _zones = zones; _zoneOption = Zones[0]; _sync = sync;
+        _snapshot = sync?.Current ?? DemoData.Create(_scenario.Id, clock.UtcNow, zones.CurrentZone);
+        Announcement.IsDemo = IsDemo;
         _lastToday = CalendarService.LocalDate(clock.UtcNow, zones.CurrentZone);
         Calendar.Initialize(_lastToday);
         ToggleModeCommand = new DelegateCommand(_ => { IsCompact = !IsCompact; ModeChanged?.Invoke(this, EventArgs.Empty); });
         TogglePinCommand = new DelegateCommand(_ => IsPinned = !IsPinned);
-        RefreshCommand = new DelegateCommand(_ => LoadScenario());
-        ToggleToolsCommand = new DelegateCommand(_ => ToolsOpen = !ToolsOpen);
+        RefreshCommand = new DelegateCommand(_ => { if (_sync is null) LoadScenario(); else _ = _sync.RefreshAsync(); });
+        ToggleToolsCommand = new DelegateCommand(_ => { if (IsDemo) ToolsOpen = !ToolsOpen; });
         PreviousMonthCommand = new DelegateCommand(_ => MoveMonth(-1));
         NextMonthCommand = new DelegateCommand(_ => MoveMonth(1));
         TodayCommand = new DelegateCommand(_ => { var today = CalendarService.LocalDate(_clock.UtcNow, _zones.CurrentZone); Calendar.SetMonth(today); Calendar.Select(today); RebuildCalendar(); });
@@ -89,7 +99,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     private void LoadScenario()
     {
-        _snapshot = DemoData.Create(_scenario.Id, _clock.UtcNow, _zones.CurrentZone);
+        if (!IsDemo) return;
+        ApplySnapshot(DemoData.Create(_scenario.Id, _clock.UtcNow, _zones.CurrentZone));
+    }
+
+    public void ApplySnapshot(WidgetSnapshot snapshot)
+    {
+        if (snapshot.Revision < _snapshot.Revision && !IsDemo) return;
+        _snapshot = snapshot;
         if (Announcement.SelectedEvent is { } key)
         {
             var reset = _snapshot.History.Events.FirstOrDefault(e => e.Key == key);
@@ -97,7 +114,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             else ShowLatest();
         }
         else ShowLatest();
-        RebuildCalendar(); Tick(); Changed(nameof(FooterTime));
+        RebuildCalendar(); Tick(); Changed(nameof(FooterTime)); Changed(nameof(HistoryHealthText)); Changed(nameof(CacheWarning)); Changed(nameof(UpstreamTime));
     }
 
     private void ShowLatest()
@@ -113,7 +130,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         Announcement.UpdateZone(_zones.CurrentZone, _zones.FollowsSystem);
         if (Announcement.IsReadingHistory && Announcement.CurrentEvent is { } reset)
             Calendar.Select(CalendarService.LocalDate(reset.AnnouncedAtUtc, _zones.CurrentZone));
-        RebuildCalendar(); Tick(); Changed(nameof(FooterTime)); Changed(nameof(FooterZone));
+        RebuildCalendar(); Tick(); Changed(nameof(FooterTime)); Changed(nameof(FooterZone)); Changed(nameof(HistoryHealthText)); Changed(nameof(UpstreamTime));
     }
     public void Tick()
     {
@@ -125,5 +142,6 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         Changed(nameof(FooterZone));
     }
     public void RefreshSystemTimeZone() => _zones.Refresh();
-    public void Dispose() => _zones.ZoneChanged -= OnZoneChanged;
+    public void RefreshAfterResume() { if (_sync is not null) _ = _sync.PollAsync(); }
+    public void Dispose() { _zones.ZoneChanged -= OnZoneChanged; _sync?.Dispose(); }
 }

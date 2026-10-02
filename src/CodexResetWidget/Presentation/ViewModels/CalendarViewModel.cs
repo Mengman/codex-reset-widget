@@ -25,7 +25,7 @@ public sealed class EventRowViewModel(ResetEvent reset)
     public ResetEvent Event { get; } = reset;
     public string Label => TimeDisplay.TypeLabel(Event);
     public string Marker => Event.Type switch { ResetType.Regular => "●", ResetType.Banked => "◆", _ => "○" };
-    public string Detail => Event.SourceKind == SourceKind.Observed ? "观察记录 · 无原始推文" : "公告记录 · 查看内容";
+    public string Detail => Event.SourceKind == SourceKind.Observed ? "数据源观察记录 · 查看内容" : "公告记录 · 查看内容";
 }
 
 public sealed class CalendarViewModel : ObservableObject
