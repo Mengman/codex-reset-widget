@@ -1,0 +1,10 @@
+Codex Reset 第三方声明
+
+本程序随包包含 Microsoft.NETCore.App 与 Microsoft.WindowsDesktop.App 的 Windows x64 运行时。
+具体版本见 RELEASE.json 和 CodexResetWidget.runtimeconfig.json。
+各运行时包提供的原始 LICENSE 与 THIRD-PARTY-NOTICES 已复制到 ThirdParty/ 对应目录；相关许可与归属以这些原始文件为准。
+应用代码的 MIT 许可见根目录 LICENSE。
+
+公开数据由 Codex Resets 提供：https://codex-resets.com/
+应用保留可点击的数据来源链接。缓存的公告原文及外链属于第三方内容，项目 MIT 许可不将其转为本项目所有。
+应用不随包提供第三方头像；T 文字头像为占位展示。计时器 Logo 为本项目矢量资源。

@@ -15,10 +15,14 @@ public static class LiveChecks
     public static async Task RunAsync(MainWindow window, SyncController sync, string directory)
     {
         Directory.CreateDirectory(directory);
+        var startup = new { Compact = window.Model.IsCompact, Pinned = window.Model.IsPinned,
+            Theme = window.Theme.Mode.ToString(), window.Width, window.Height };
         window.Model.ApplySnapshot(sync.Current);
         foreach (var theme in new[] { AppThemeMode.Light, AppThemeMode.Dark })
         {
             window.Theme.Apply(theme);
+            // WPF export cannot capture the native compositor's Mica surface.
+            window.SetResourceReference(System.Windows.Window.BackgroundProperty, "WindowBrush");
             await window.Dispatcher.InvokeAsync(window.UpdateLayout, DispatcherPriority.ApplicationIdle);
             var bitmap = new RenderTargetBitmap((int)window.ActualWidth, (int)window.ActualHeight, 96, 96, PixelFormats.Pbgra32);
             bitmap.Render(window);
@@ -39,6 +43,9 @@ public static class LiveChecks
         await File.WriteAllTextAsync(Path.Combine(directory, "live-checks.json"), JsonSerializer.Serialize(new
         {
             StatusLoaded = sync.Current.Status is not null,
+            Startup = startup, window.Model.IsDemo,
+            RuntimeDirectory = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(),
+            ProcessPath = Environment.ProcessPath,
             HistoryCount = sync.Current.History.Events.Count,
             HistoryComplete = sync.Current.History.IsComplete,
             ReadingPreservedAfterRefresh = readingPreserved,

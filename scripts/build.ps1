@@ -1,5 +1,7 @@
-param([switch]$Publish, [switch]$RunUiChecks, [switch]$RunDesktopChecks)
+param([switch]$Publish, [switch]$RunUiChecks, [switch]$RunDesktopChecks, [switch]$RunLiveChecks,
+    [string]$UpgradeDataDirectory)
 $ErrorActionPreference = 'Stop'
+if ($UpgradeDataDirectory -and -not $RunLiveChecks) { throw 'Upgrade checks require -RunLiveChecks.' }
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Set-Location -LiteralPath $projectRoot
 $dotnetPath = Join-Path $projectRoot '.tools\dotnet\dotnet.exe'
@@ -18,58 +20,63 @@ $env:LOCALAPPDATA = Join-Path $projectRoot '.tools\localappdata'
 New-Item -ItemType Directory -Force $env:APPDATA,$env:LOCALAPPDATA | Out-Null
 $restoreArguments = @('--configfile', (Join-Path $projectRoot 'NuGet.Config'))
 $localFeed = Join-Path $projectRoot '.tools\nuget-feed'
-if (Test-Path -LiteralPath $localFeed) {
-    # Optional offline feed used by this workspace; normal SDK installs can use nuget.org.
-    $restoreArguments += @('--source', $localFeed, '-p:NuGetAudit=false')
-}
+if (Test-Path -LiteralPath $localFeed) { $restoreArguments += @('--source', $localFeed, '-p:NuGetAudit=false') }
 & $dotnetPath restore CodexResetWidget.sln @restoreArguments
 if ($LASTEXITCODE -ne 0) { throw 'Dependency restore failed.' }
 & $dotnetPath build CodexResetWidget.sln -c Release --no-restore
 if ($LASTEXITCODE -ne 0) { throw 'Release build failed.' }
-$milestoneRoot = Join-Path $projectRoot 'artifacts\milestones\m3-about-logo'
+$milestoneRoot = Join-Path $projectRoot 'artifacts\milestones\m4'
 New-Item -ItemType Directory -Force $milestoneRoot | Out-Null
 & $dotnetPath tests\CodexResetWidget.Tests\bin\Release\net10.0\CodexResetWidget.Tests.dll |
     Tee-Object -FilePath (Join-Path $milestoneRoot 'domain-tests.txt')
 if ($LASTEXITCODE -ne 0) { throw 'Domain tests failed.' }
-if ($Publish -or $RunUiChecks -or $RunDesktopChecks) {
-    $portableDirectory = Join-Path $milestoneRoot 'portable-final'
-    & $dotnetPath restore src\CodexResetWidget\CodexResetWidget.csproj -r win-x64 -p:SelfContained=true @restoreArguments
-    if ($LASTEXITCODE -ne 0) { throw 'Runtime restore failed.' }
-    & $dotnetPath publish src\CodexResetWidget\CodexResetWidget.csproj -c Release -r win-x64 --self-contained true -o $portableDirectory --no-restore
-    if ($LASTEXITCODE -ne 0) { throw 'Portable publish failed.' }
-    Copy-Item -LiteralPath (Join-Path $projectRoot 'LICENSE') -Destination $portableDirectory -Force
-    Copy-Item -LiteralPath (Join-Path $projectRoot 'docs\milestones\m3-about-logo-usage.txt') -Destination (Join-Path $portableDirectory 'README.txt') -Force
-    $runtimeManifest = Get-Content -LiteralPath (Join-Path $portableDirectory 'CodexResetWidget.runtimeconfig.json') -Raw | ConvertFrom-Json
-    foreach ($framework in $runtimeManifest.runtimeOptions.includedFrameworks) {
-        $runtimePackageId = $framework.name.ToLowerInvariant() + '.runtime.win-x64'
-        $runtimePackageDirectory = Join-Path $env:NUGET_PACKAGES ($runtimePackageId + '\' + $framework.version)
-        $licenseDirectory = Join-Path $portableDirectory ('ThirdParty\' + $framework.name)
-        New-Item -ItemType Directory -Force $licenseDirectory | Out-Null
-        $licenseFiles = @(Get-ChildItem -LiteralPath $runtimePackageDirectory -File | Where-Object { $_.Name -match '^(LICENSE|THIRD.PARTY.NOTICES)' })
-        if ($licenseFiles.Count -eq 0) { throw "Runtime license missing: $runtimePackageId" }
-        foreach ($licenseFile in $licenseFiles) { Copy-Item -LiteralPath $licenseFile.FullName -Destination $licenseDirectory -Force }
-    }
-    $archivePath = Join-Path $milestoneRoot 'CodexResetWidget-0.3.2-m3-win-x64.zip'
-    Compress-Archive -Path (Join-Path $portableDirectory '*') -DestinationPath $archivePath -Force
-    Get-FileHash -LiteralPath $archivePath -Algorithm SHA256 | Format-List
+if (-not ($Publish -or $RunUiChecks -or $RunDesktopChecks -or $RunLiveChecks)) { return }
+# A fresh staging directory prevents stale binaries or a running earlier preview from affecting the ZIP.
+$buildId = [Guid]::NewGuid().ToString('N')
+$portableDirectory = Join-Path $milestoneRoot ('publish-' + $buildId)
+& $dotnetPath restore src\CodexResetWidget\CodexResetWidget.csproj -r win-x64 -p:SelfContained=true @restoreArguments
+if ($LASTEXITCODE -ne 0) { throw 'Runtime restore failed.' }
+& $dotnetPath publish src\CodexResetWidget\CodexResetWidget.csproj -c Release -r win-x64 --self-contained true -o $portableDirectory --no-restore -p:DebugType=none -p:DebugSymbols=false
+if ($LASTEXITCODE -ne 0) { throw 'Portable publish failed.' }
+$version = (Get-Item -LiteralPath (Join-Path $portableDirectory 'CodexResetWidget.exe')).VersionInfo.ProductVersion.Split('+')[0]
+if ($version -notmatch '^\d+\.\d+\.\d+([-.][a-zA-Z0-9.]+)?$') { throw 'Invalid release version.' }
+Copy-Item -LiteralPath (Join-Path $projectRoot 'LICENSE') -Destination $portableDirectory
+$usage = (Get-Content -LiteralPath (Join-Path $projectRoot 'docs\release-usage.txt') -Raw).Replace('{{VERSION}}', $version)
+Set-Content -LiteralPath (Join-Path $portableDirectory 'README.txt') -Value $usage -Encoding utf8
+Copy-Item -LiteralPath (Join-Path $projectRoot 'docs\third-party-notices.txt') -Destination (Join-Path $portableDirectory 'THIRD-PARTY-NOTICES.txt')
+$runtimeManifest = Get-Content -LiteralPath (Join-Path $portableDirectory 'CodexResetWidget.runtimeconfig.json') -Raw | ConvertFrom-Json
+foreach ($framework in $runtimeManifest.runtimeOptions.includedFrameworks) {
+    $runtimePackageId = $framework.name.ToLowerInvariant() + '.runtime.win-x64'
+    $runtimePackageDirectory = Join-Path $env:NUGET_PACKAGES ($runtimePackageId + '\' + $framework.version)
+    $licenseDirectory = Join-Path $portableDirectory ('ThirdParty\' + $framework.name)
+    New-Item -ItemType Directory -Force $licenseDirectory | Out-Null
+    $licenseFiles = @(Get-ChildItem -LiteralPath $runtimePackageDirectory -File | Where-Object { $_.Name -match '^(LICENSE|THIRD.PARTY.NOTICES)' })
+    if ($licenseFiles.Count -eq 0) { throw "Runtime license missing: $runtimePackageId" }
+    foreach ($licenseFile in $licenseFiles) { Copy-Item -LiteralPath $licenseFile.FullName -Destination $licenseDirectory }
 }
+$fileManifest = @(Get-ChildItem -LiteralPath $portableDirectory -Recurse -File | Sort-Object FullName | ForEach-Object {
+    [ordered]@{ Path = [IO.Path]::GetRelativePath($portableDirectory, $_.FullName).Replace('\', '/');
+        Length = $_.Length; Sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash }
+})
+[ordered]@{ Version = $version; RuntimeIdentifier = 'win-x64'; SelfContained = $true;
+    BuiltAtUtc = [DateTimeOffset]::UtcNow.ToString('O'); Sdk = (& $dotnetPath --version);
+    Frameworks = @($runtimeManifest.runtimeOptions.includedFrameworks); SettingsSchema = 1; CacheSchema = 1;
+    Files = $fileManifest } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $portableDirectory 'RELEASE.json') -Encoding utf8
 if ($RunUiChecks) {
-    $captureDirectory = Join-Path $milestoneRoot 'captures'
-    $checkProcess = Start-Process -FilePath (Join-Path $portableDirectory 'CodexResetWidget.exe') -WindowStyle Hidden -PassThru -ArgumentList @('--demo', '--capture-dir', ('"' + $captureDirectory + '"'))
-    if (-not $checkProcess.WaitForExit(45000)) { throw 'WPF checks timed out; inspect the check window and logs.' }
+    $captureDirectory = Join-Path $milestoneRoot ('ui-' + $buildId)
+    $checkProcess = Start-Process -FilePath (Join-Path $portableDirectory 'CodexResetWidget.exe') -WindowStyle Hidden -PassThru -ArgumentList @('--capture-dir', ('"' + $captureDirectory + '"'))
+    if (-not $checkProcess.WaitForExit(45000)) { $checkProcess.Kill(); throw 'WPF checks timed out.' }
     $reportPath = Join-Path $captureDirectory 'ui-checks.json'
     if (-not (Test-Path -LiteralPath $reportPath)) { throw 'WPF check report was not produced.' }
     $report = Get-Content -LiteralPath $reportPath -Raw | ConvertFrom-Json
     if (-not $report.Passed -or $checkProcess.ExitCode -ne 0) { throw "WPF checks failed. See $reportPath" }
     Write-Output "WPF checks passed: $($report.Checks.Count). Captures: $captureDirectory"
 }
-if ($RunDesktopChecks) {
-    $desktopDirectory = Join-Path $milestoneRoot 'desktop-captures'
-    $checkProcess = Start-Process -FilePath (Join-Path $portableDirectory 'CodexResetWidget.exe') -WindowStyle Hidden -PassThru -ArgumentList @('--desktop-check-dir', ('"' + $desktopDirectory + '"'))
-    if (-not $checkProcess.WaitForExit(45000)) { throw 'Desktop checks timed out.' }
-    $reportPath = Join-Path $desktopDirectory 'desktop-checks.json'
-    if (-not (Test-Path -LiteralPath $reportPath)) { throw 'Desktop check report was not produced.' }
-    $report = Get-Content -LiteralPath $reportPath -Raw | ConvertFrom-Json
-    if (-not $report.Passed -or $checkProcess.ExitCode -ne 0) { throw "Desktop checks failed. See $reportPath" }
-    Write-Output "Desktop checks passed: $($report.Checks.Count). Captures: $desktopDirectory"
-}
+$archivePath = Join-Path $milestoneRoot ('CodexResetWidget-' + $version + '-win-x64.zip')
+Compress-Archive -Path (Join-Path $portableDirectory '*') -DestinationPath $archivePath -Force
+& (Join-Path $PSScriptRoot 'verify-package.ps1') -ArchivePath $archivePath -RunDesktopChecks:$RunDesktopChecks -RunLiveChecks:$RunLiveChecks -UpgradeDataDirectory $UpgradeDataDirectory
+if (-not $?) { throw 'Package verification failed.' }
+$archiveHash = Get-FileHash -LiteralPath $archivePath -Algorithm SHA256
+($archiveHash.Hash + '  ' + [IO.Path]::GetFileName($archivePath)) |
+    Set-Content -LiteralPath ($archivePath + '.sha256') -Encoding ascii
+$archiveHash | Format-List

@@ -185,6 +185,7 @@ public static class DesktopChecks
         {
             Passed = failure is null, Checks = checks, Error = failure, MicaAcceptedByDwm = micaAccepted,
             HostDpi = VisualTreeHelper.GetDpi(window).PixelsPerInchX, MonitorCount = monitors.Count,
+            RuntimeDirectory = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(),
             Note = "100/150/200 percent work areas are layout simulations; OS scaling and display disconnection are not changed."
         }, new JsonSerializerOptions { WriteIndented = true }));
         System.Windows.Application.Current.Shutdown(failure is null ? 0 : 1);

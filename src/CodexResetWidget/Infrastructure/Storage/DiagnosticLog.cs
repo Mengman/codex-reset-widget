@@ -18,7 +18,9 @@ public sealed class DiagnosticLog(string directory)
                     var previous = Path.Combine(directory, "sync.previous.log");
                     File.Move(path, previous, true);
                 }
-                File.AppendAllText(path, $"{DateTimeOffset.UtcNow:O} {message.Replace('\r', ' ').Replace('\n', ' ')}{Environment.NewLine}");
+                var line = message.Replace('\r', ' ').Replace('\n', ' ');
+                if (line.Length > 4096) line = line[..4096] + "…";
+                File.AppendAllText(path, $"{DateTimeOffset.UtcNow:O} {line}{Environment.NewLine}");
             }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }
         }
