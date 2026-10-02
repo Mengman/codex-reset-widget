@@ -16,8 +16,8 @@ public sealed class CalendarDayViewModel(CalendarDay day, bool selected)
     public bool HasForecast => Day.Forecast is not null;
     public bool HasMultiple => Day.Events.Count > 1;
     public string Count => $"{Day.Events.Count}";
-    public string AccessibleName => $"{Day.Date:yyyy-MM-dd}，{Day.Events.Count} 条公告记录{(HasForecast ? "，有未来预告" : "")}";
-    public string Tooltip => $"{Day.Date:yyyy-MM-dd} · {Day.Events.Count} 条公告记录{(HasForecast ? " · 公告预计时间" : "")}";
+    public string AccessibleName => L10n.Format("Calendar.DayAccessible", Day.Date.ToString("yyyy-MM-dd"), Day.Events.Count, HasForecast ? L10n.Get("Calendar.HasForecast") : "");
+    public string Tooltip => L10n.Format("Calendar.DayTooltip", Day.Date.ToString("yyyy-MM-dd"), Day.Events.Count, HasForecast ? L10n.Get("Calendar.ForecastSuffix") : "");
 }
 
 public sealed class EventRowViewModel(ResetEvent reset, string? date = null)
@@ -25,7 +25,7 @@ public sealed class EventRowViewModel(ResetEvent reset, string? date = null)
     public ResetEvent Event { get; } = reset;
     public string Label => date is null ? TimeDisplay.TypeLabel(Event) : $"{date} · {TimeDisplay.TypeLabel(Event)}";
     public string Marker => Event.Type switch { ResetType.Regular => "●", ResetType.Banked => "◆", _ => "○" };
-    public string Detail => Event.Type == ResetType.Banked ? "手动使用 · 查看公告" : "查看公告";
+    public string Detail => Event.Type == ResetType.Banked ? L10n.Get("Calendar.ManualView") : L10n.Get("Calendar.View");
 }
 
 public sealed class CalendarViewModel : ObservableObject
@@ -35,9 +35,9 @@ public sealed class CalendarViewModel : ObservableObject
     private bool _complete;
     public DateOnly VisibleMonth => _month;
     public DateOnly SelectedDate => _selectedDate;
-    public string MonthLabel => $"{_month.Year} 年 {_month.Month} 月";
-    public string SelectedLabel => $"{_selectedDate.Month} 月 {_selectedDate.Day} 日 · 公告记录";
-    public string EmptyText => _complete ? "当前数据源未收录当天记录" : "历史记录尚未加载完整";
+    public string MonthLabel => TimeDisplay.Month(_month);
+    public string SelectedLabel => L10n.Format("Calendar.SelectedLabel", TimeDisplay.Date(_selectedDate));
+    public string EmptyText => _complete ? L10n.Get("Calendar.Empty") : L10n.Get("Calendar.Incomplete");
     public bool HasEvents => Events.Count > 0;
     public ObservableCollection<CalendarDayViewModel> Days { get; } = [];
     public ObservableCollection<EventRowViewModel> Events { get; } = [];
@@ -51,7 +51,7 @@ public sealed class CalendarViewModel : ObservableObject
         foreach (var day in month.Days) Days.Add(new(day, day.Date == _selectedDate));
         Events.Clear();
         foreach (var reset in snapshot.History.Events.Where(e => e.Status != EventStatus.Scheduled && CalendarService.LocalDate(e.AnnouncedAtUtc, zone) == _selectedDate).OrderByDescending(e => e.AnnouncedAtUtc))
-            Events.Add(new(reset, $"{_selectedDate.Month} 月 {_selectedDate.Day} 日"));
+            Events.Add(new(reset, TimeDisplay.Date(_selectedDate)));
         AllChanged();
     }
 }

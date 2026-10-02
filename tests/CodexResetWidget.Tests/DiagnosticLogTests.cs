@@ -16,7 +16,7 @@ internal static class DiagnosticLogTests
         {
             var logs = Path.Combine(directory, "logs");
             var logger = new DiagnosticLog(logs);
-            for (var i = 0; i < 100; i++) logger.Write(new string('中', 20_000));
+            for (var i = 0; i < 100; i++) logger.Write(new string('\u4E2D', 20_000));
             var files = Directory.GetFiles(logs);
             Assert(files.Length == 2 && files.Sum(f => new FileInfo(f).Length) < 1_100_000);
             Assert(File.ReadAllLines(Path.Combine(logs, "sync.log")).All(line => line.Length < 4200));

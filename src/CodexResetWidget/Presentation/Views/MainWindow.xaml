@@ -16,30 +16,35 @@
           <TextBlock Text="Codex Reset" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center" />
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
-          <Button Style="{StaticResource IconButton}" Content="refresh" Command="{Binding RefreshCommand}" ToolTip="刷新公告与历史记录" AutomationProperties.Name="刷新数据" />
-          <Button x:Name="PinButton" Command="{Binding TogglePinCommand}" AutomationProperties.Name="切换置顶">
-            <Button.Style><Style TargetType="Button" BasedOn="{StaticResource IconButton}"><Setter Property="Content" Value="pin"/><Setter Property="ToolTip" Value="置顶窗口"/><Style.Triggers>
-              <DataTrigger Binding="{Binding IsPinned}" Value="True"><Setter Property="Content" Value="pinned" /><Setter Property="ToolTip" Value="取消置顶（当前已置顶）" /><Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" /><Setter Property="Foreground" Value="{DynamicResource AccentBrush}" /></DataTrigger>
+          <Button Style="{StaticResource IconButton}" Content="refresh" Command="{Binding RefreshCommand}" ToolTip="{DynamicResource Text.Action.RefreshTooltip}" AutomationProperties.Name="{DynamicResource Text.Action.Refresh}" />
+          <Button x:Name="PinButton" Command="{Binding TogglePinCommand}" AutomationProperties.Name="{DynamicResource Text.Action.PinToggle}">
+            <Button.Style><Style TargetType="Button" BasedOn="{StaticResource IconButton}"><Setter Property="Content" Value="pin"/><Setter Property="ToolTip" Value="{DynamicResource Text.Action.Pin}"/><Style.Triggers>
+              <DataTrigger Binding="{Binding IsPinned}" Value="True"><Setter Property="Content" Value="pinned" /><Setter Property="ToolTip" Value="{DynamicResource Text.Action.Unpin}" /><Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" /><Setter Property="Foreground" Value="{DynamicResource AccentBrush}" /></DataTrigger>
             </Style.Triggers></Style></Button.Style>
           </Button>
-          <Button Style="{StaticResource ModeButton}" Command="{Binding ToggleModeCommand}" ToolTip="{Binding ModeAction}" AutomationProperties.Name="切换窗口模式" />
-          <Button x:Name="MoreButton" Style="{StaticResource IconButton}" Content="more" Click="ShowMenu" ToolTip="主题、关于与退出" AutomationProperties.Name="更多菜单">
+          <Button Style="{StaticResource ModeButton}" Command="{Binding ToggleModeCommand}" ToolTip="{Binding ModeAction}" AutomationProperties.Name="{DynamicResource Text.Action.ModeToggle}" />
+          <Button x:Name="MoreButton" Style="{StaticResource IconButton}" Content="more" Click="ShowMenu" ToolTip="{DynamicResource Text.Action.MoreTooltip}" AutomationProperties.Name="{DynamicResource Text.Action.More}">
             <Button.ContextMenu>
               <ContextMenu Background="{DynamicResource CardBrush}" Foreground="{DynamicResource TextBrush}">
-                <MenuItem Header="跟随系统主题" Tag="System" Click="SelectTheme" />
-                <MenuItem Header="浅色主题" Tag="Light" Click="SelectTheme" />
-                <MenuItem Header="深色主题" Tag="Dark" Click="SelectTheme" />
+                <MenuItem Header="{DynamicResource Text.Theme.System}" Tag="System" Click="SelectTheme" />
+                <MenuItem Header="{DynamicResource Text.Theme.Light}" Tag="Light" Click="SelectTheme" />
+                <MenuItem Header="{DynamicResource Text.Theme.Dark}" Tag="Dark" Click="SelectTheme" />
+                <MenuItem x:Name="LanguageMenuItem" Header="{DynamicResource Text.Language.Menu}">
+                  <MenuItem x:Name="SystemLanguageItem" Header="{DynamicResource Text.Language.System}" Tag="System" IsCheckable="True" Click="SelectLanguage" />
+                  <MenuItem x:Name="EnglishLanguageItem" Header="{DynamicResource Text.Language.English}" Tag="English" IsCheckable="True" Click="SelectLanguage" />
+                  <MenuItem x:Name="ChineseLanguageItem" Header="{DynamicResource Text.Language.Chinese}" Tag="SimplifiedChinese" IsCheckable="True" Click="SelectLanguage" />
+                </MenuItem>
                 <Separator />
-                <MenuItem Header="关于 Codex Reset" Click="ShowAbout"/>
-                <MenuItem Header="数据来源：Codex Resets" Click="OpenSource" />
+                <MenuItem Header="{DynamicResource Text.About.Title}" Click="ShowAbout"/>
+                <MenuItem Header="{DynamicResource Text.Source.Menu}" Click="OpenSource" />
                 <Separator />
-                <MenuItem Header="最小化" Click="MinimizeWindow" />
-                <MenuItem Header="收进托盘" Click="HideWindow" />
-                <MenuItem Header="退出" Click="ExitWindow" />
+                <MenuItem Header="{DynamicResource Text.Action.Minimize}" Click="MinimizeWindow" />
+                <MenuItem Header="{DynamicResource Text.Action.Hide}" Click="HideWindow" />
+                <MenuItem Header="{DynamicResource Text.Action.Exit}" Click="ExitWindow" />
               </ContextMenu>
             </Button.ContextMenu>
           </Button>
-          <Button Style="{StaticResource IconButton}" Content="close" Click="CloseWindow" ToolTip="关闭窗口，正式模式收进托盘" AutomationProperties.Name="关闭窗口" />
+          <Button Style="{StaticResource IconButton}" Content="close" Click="CloseWindow" ToolTip="{DynamicResource Text.Action.CloseTooltip}" AutomationProperties.Name="{DynamicResource Text.Action.CloseWindow}" />
         </StackPanel>
       </Grid>
       <ScrollViewer x:Name="ContentScroll" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
@@ -54,8 +59,8 @@
               <Grid Grid.Row="1">
                 <StackPanel VerticalAlignment="Center" Visibility="{Binding Board.HasCountdown, Converter={StaticResource BoolVisibility}}">
                   <Viewbox Height="55" Stretch="Uniform" StretchDirection="DownOnly"><TextBlock Text="{Binding Board.Countdown}" FontSize="48" LineHeight="52" LineStackingStrategy="BlockLineHeight" FontWeight="SemiBold" Typography.NumeralAlignment="Tabular" Foreground="{DynamicResource AccentBrush}"/></Viewbox>
-                  <TextBlock Text="距公告预计时间" Style="{StaticResource SecondaryText}" FontSize="13" HorizontalAlignment="Center" Margin="0,0,0,13"/>
-                  <TextBlock Text="公告预计时间" Style="{StaticResource SecondaryText}" HorizontalAlignment="Center"/>
+                  <TextBlock Text="{DynamicResource Text.Board.RemainingLabel}" Style="{StaticResource SecondaryText}" FontSize="13" HorizontalAlignment="Center" Margin="0,0,0,13"/>
+                  <TextBlock Text="{DynamicResource Text.Board.ExpectedLabel}" Style="{StaticResource SecondaryText}" HorizontalAlignment="Center"/>
                   <TextBlock Text="{Binding Board.MainDate}" FontSize="19" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0" ToolTip="{Binding Board.ZoneName}"/>
                 </StackPanel>
                 <TextBlock Text="{Binding Board.MainDate}" Visibility="{Binding Board.ShowsDate, Converter={StaticResource BoolVisibility}}" FontSize="27" FontWeight="SemiBold" TextWrapping="Wrap" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" ToolTip="{Binding Board.ZoneName}"/>
@@ -65,7 +70,7 @@
               </Grid>
               <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <TextBlock Text="{Binding Board.Supporting}" Style="{StaticResource SecondaryText}" FontSize="11" VerticalAlignment="Bottom"/>
-                <TextBlock Grid.Column="1" Text="实际额度以 Codex 为准" Style="{StaticResource SecondaryText}" FontSize="11" VerticalAlignment="Bottom"/>
+                <TextBlock Grid.Column="1" Text="{DynamicResource Text.Board.QuotaDisclaimer}" Style="{StaticResource SecondaryText}" FontSize="11" VerticalAlignment="Bottom"/>
               </Grid>
             </Grid>
           </Border>
@@ -73,8 +78,8 @@
           <StackPanel Visibility="{Binding IsExpanded, Converter={StaticResource BoolVisibility}}">
             <DockPanel Margin="0,8,0,2">
               <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                <Button Style="{StaticResource IconButton}" Content="left" Command="{Binding OlderAnnouncementCommand}" ToolTip="较早的公告" AutomationProperties.Name="阅读较早公告" />
-                <Button Style="{StaticResource IconButton}" Content="right" Command="{Binding NewerAnnouncementCommand}" ToolTip="较新的公告" AutomationProperties.Name="阅读较新公告" />
+                <Button Style="{StaticResource IconButton}" Content="left" Command="{Binding OlderAnnouncementCommand}" ToolTip="{DynamicResource Text.Announcement.OlderTooltip}" AutomationProperties.Name="{DynamicResource Text.Announcement.OlderAccessible}" />
+                <Button Style="{StaticResource IconButton}" Content="right" Command="{Binding NewerAnnouncementCommand}" ToolTip="{DynamicResource Text.Announcement.NewerTooltip}" AutomationProperties.Name="{DynamicResource Text.Announcement.NewerAccessible}" />
               </StackPanel>
               <TextBlock x:Name="AnnouncementHeading" Text="{Binding Announcement.Heading}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
             </DockPanel>
@@ -88,19 +93,19 @@
                 <ScrollViewer x:Name="AnnouncementScroll" Grid.Row="1" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Margin="0,8,0,8"><TextBlock Text="{Binding Announcement.Text}" TextWrapping="Wrap" FontSize="14" LineHeight="21"/></ScrollViewer>
                 <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                   <TextBlock Text="{Binding Announcement.Published}" Style="{StaticResource SecondaryText}" FontSize="11" VerticalAlignment="Center" ToolTip="{Binding Announcement.ZoneLabel}"/>
-                  <Button Grid.Column="1" Content="查看原文 ↗" Click="OpenAnnouncement" Visibility="{Binding Announcement.HasLink, Converter={StaticResource BoolVisibility}}" Foreground="{DynamicResource AccentBrush}" FontSize="11" Padding="0" MinHeight="22" AutomationProperties.Name="查看公告原文"/>
+                  <Button Grid.Column="1" Content="{DynamicResource Text.Announcement.ViewOriginal}" Click="OpenAnnouncement" Visibility="{Binding Announcement.HasLink, Converter={StaticResource BoolVisibility}}" Foreground="{DynamicResource AccentBrush}" FontSize="11" Padding="0" MinHeight="22" AutomationProperties.Name="{DynamicResource Text.Announcement.ViewOriginalAccessible}"/>
                 </Grid>
               </Grid>
             </Border>
-            <Grid Height="28" Margin="0,8,0,2"><TextBlock x:Name="CalendarHeading" Text="重置日历" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></Grid>
+            <Grid Height="28" Margin="0,8,0,2"><TextBlock x:Name="CalendarHeading" Text="{DynamicResource Text.Calendar.Title}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></Grid>
             <TextBlock Text="{Binding HistoryNotice}" Style="{StaticResource SecondaryText}" FontSize="11" TextWrapping="Wrap" Visibility="{Binding HasHistoryNotice, Converter={StaticResource BoolVisibility}}" Margin="0,0,0,5"/>
             <Border x:Name="CalendarCard" Style="{StaticResource Card}" Height="284" Padding="12">
               <Grid><Grid.RowDefinitions><RowDefinition Height="28"/><RowDefinition Height="22"/><RowDefinition/><RowDefinition Height="22"/><RowDefinition Height="30"/></Grid.RowDefinitions>
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                   <TextBlock Text="{Binding Calendar.MonthLabel}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                  <StackPanel Grid.Column="1" Orientation="Horizontal"><Button Content="本月" Command="{Binding TodayCommand}" Padding="4,0" FontSize="11" MinHeight="28" AutomationProperties.Name="返回本月"/><Button Style="{StaticResource IconButton}" Content="left" Command="{Binding PreviousMonthCommand}" ToolTip="上个月" AutomationProperties.Name="上个月"/><Button Style="{StaticResource IconButton}" Content="right" Command="{Binding NextMonthCommand}" ToolTip="下个月" AutomationProperties.Name="下个月"/></StackPanel>
+                  <StackPanel Grid.Column="1" Orientation="Horizontal"><Button Content="{DynamicResource Text.Calendar.ThisMonth}" Command="{Binding TodayCommand}" Padding="4,0" FontSize="11" MinHeight="28" AutomationProperties.Name="{DynamicResource Text.Calendar.ReturnThisMonth}"/><Button Style="{StaticResource IconButton}" Content="left" Command="{Binding PreviousMonthCommand}" ToolTip="{DynamicResource Text.Calendar.PreviousMonth}" AutomationProperties.Name="{DynamicResource Text.Calendar.PreviousMonth}"/><Button Style="{StaticResource IconButton}" Content="right" Command="{Binding NextMonthCommand}" ToolTip="{DynamicResource Text.Calendar.NextMonth}" AutomationProperties.Name="{DynamicResource Text.Calendar.NextMonth}"/></StackPanel>
                 </Grid>
-                <UniformGrid Grid.Row="1" Columns="7" VerticalAlignment="Center"><TextBlock Text="一" TextAlignment="Center" Style="{StaticResource SecondaryText}"/><TextBlock Text="二" TextAlignment="Center" Style="{StaticResource SecondaryText}"/><TextBlock Text="三" TextAlignment="Center" Style="{StaticResource SecondaryText}"/><TextBlock Text="四" TextAlignment="Center" Style="{StaticResource SecondaryText}"/><TextBlock Text="五" TextAlignment="Center" Style="{StaticResource SecondaryText}"/><TextBlock Text="六" TextAlignment="Center" Style="{StaticResource SecondaryText}"/><TextBlock Text="日" TextAlignment="Center" Style="{StaticResource SecondaryText}"/></UniformGrid>
+                <UniformGrid Grid.Row="1" Columns="7" VerticalAlignment="Center"><TextBlock Text="{DynamicResource Text.Week.Monday}" TextAlignment="Center" Style="{StaticResource SecondaryText}"/><TextBlock Text="{DynamicResource Text.Week.Tuesday}" TextAlignment="Center" Style="{StaticResource SecondaryText}"/><TextBlock Text="{DynamicResource Text.Week.Wednesday}" TextAlignment="Center" Style="{StaticResource SecondaryText}"/><TextBlock Text="{DynamicResource Text.Week.Thursday}" TextAlignment="Center" Style="{StaticResource SecondaryText}"/><TextBlock Text="{DynamicResource Text.Week.Friday}" TextAlignment="Center" Style="{StaticResource SecondaryText}"/><TextBlock Text="{DynamicResource Text.Week.Saturday}" TextAlignment="Center" Style="{StaticResource SecondaryText}"/><TextBlock Text="{DynamicResource Text.Week.Sunday}" TextAlignment="Center" Style="{StaticResource SecondaryText}"/></UniformGrid>
                 <ItemsControl Grid.Row="2" ItemsSource="{Binding Calendar.Days}">
                   <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="7" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                   <ItemsControl.ItemTemplate><DataTemplate>
@@ -118,7 +123,7 @@
                     </Button>
                   </DataTemplate></ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <WrapPanel Grid.Row="3" VerticalAlignment="Center"><TextBlock Text="● 额度直接重置  " FontSize="10" Foreground="{DynamicResource AccentBrush}"/><TextBlock Text="◆ 限额重置券  " FontSize="10" Foreground="{DynamicResource BankedBrush}" ToolTip="发放可手动使用的重置机会，可用期限以 Codex 为准"/><TextBlock Text="◇ 预告" FontSize="10" Foreground="{DynamicResource AccentBrush}"/></WrapPanel>
+                <WrapPanel Grid.Row="3" VerticalAlignment="Center"><TextBlock Text="{DynamicResource Text.Calendar.RegularLegend}" FontSize="10" Foreground="{DynamicResource AccentBrush}"/><TextBlock Text="{DynamicResource Text.Calendar.BankedLegend}" FontSize="10" Foreground="{DynamicResource BankedBrush}" ToolTip="{DynamicResource Text.Calendar.BankedTooltip}"/><TextBlock Text="{DynamicResource Text.Calendar.ForecastLegend}" FontSize="10" Foreground="{DynamicResource AccentBrush}"/></WrapPanel>
                 <Border Grid.Row="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,3,0,0">
                   <Grid><TextBlock Text="{Binding Calendar.EmptyText}" FontSize="11" VerticalAlignment="Center"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource SecondaryText}"><Style.Triggers><DataTrigger Binding="{Binding Calendar.HasEvents}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
                     <ScrollViewer VerticalScrollBarVisibility="Auto"><ItemsControl ItemsSource="{Binding Calendar.Events}"><ItemsControl.ItemTemplate><DataTemplate><Button Command="{Binding DataContext.SelectEventCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Padding="0" MinHeight="24" HorizontalContentAlignment="Stretch" ToolTip="{Binding Detail}" AutomationProperties.Name="{Binding Label}"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="20"/></Grid.ColumnDefinitions><TextBlock Text="{Binding Label}" FontSize="11" VerticalAlignment="Center"/><TextBlock Grid.Column="1" Text="›" VerticalAlignment="Center"/></Grid></Button></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></ScrollViewer>
@@ -131,7 +136,7 @@
       </ScrollViewer>
       <StackPanel Grid.Row="3" Margin="0,8,0,0">
         <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-          <Button Content="{Binding SourceCaption}" Click="OpenSource" Foreground="{DynamicResource SecondaryBrush}" FontSize="11" Padding="0" MinHeight="22" HorizontalAlignment="Left" ToolTip="打开第三方数据来源" />
+          <Button Content="{Binding SourceCaption}" Click="OpenSource" Foreground="{DynamicResource SecondaryBrush}" FontSize="11" Padding="0" MinHeight="22" HorizontalAlignment="Left" ToolTip="{DynamicResource Text.Source.Tooltip}" />
           <TextBlock Grid.Column="1" Text="{Binding FooterTime}" ToolTip="{Binding UpstreamTime}" Style="{StaticResource SecondaryText}" FontSize="10" VerticalAlignment="Center" />
         </Grid>
         <TextBlock Text="{Binding CacheWarning}" Style="{StaticResource OptionalText}" Foreground="{DynamicResource NoticeTextBrush}" FontSize="11" TextWrapping="Wrap" />
@@ -140,4 +145,3 @@
     </Grid>
   </Border>
 </Window>
-

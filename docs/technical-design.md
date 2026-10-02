@@ -438,3 +438,11 @@ P1 通知可包括新预告、提前 10 分钟和到达目标时间。以“来�
 构建、功能测试分组和发布检查方法见 [开发与测试](development.md)。当前验证结果、候选包与未验证环境见 [验证记录](validation.md)。
 
 关键边界包括跨时区与夏令时、预计时间更正或消失、到点文案、未知类型、六行月历、多事件、304、429、取消和乱序、离线缓存、损坏文件、设置兼容、窗口位置与日志上限。实际多屏、系统缩放热切换、系统时区修改、真实休眠和干净 Windows 的现场验证尚未完成。
+
+## 国际化实现
+
+`Localization/Strings.en.json` 与 `Strings.zh-CN.json` 作为嵌入资源，保存完整的英文及简体中文词条。`L10n` 负责词条、格式化日期、系统语言映射与切换事件；缺失词条回退到英语。C# 与 XAML 不内嵌中文显示文案。
+
+`Platform/LanguageService` 通过 Windows `GetUserDefaultUILanguage` 读取用户显示语言，更新 WPF 动态资源和窗口的 Language。MainViewModel 刷新各板块的本地化属性，TrayService 同步菜单和提示，已有关于窗口同步版本标签。公告正文、UTC 数据和系统时区保持独立。
+
+DesktopSettings 增加可选 Language：System、English、SimplifiedChinese，仍沿用格式版本 1。旧文件缺少该字段时默认 System。新缓存提示保存资源键及参数；旧缓存中已渲染的已知提示可重新映射词条。

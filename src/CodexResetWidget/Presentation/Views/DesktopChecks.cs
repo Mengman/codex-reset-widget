@@ -34,6 +34,7 @@ public static class DesktopChecks
         var vm = window.Model;
         try
         {
+            LanguageService.Apply(LanguageMode.English);
             await Idle();
             if (vm.IsCompact) vm.ToggleModeCommand.Execute(null);
             vm.ToolsOpen = false; vm.SelectedScenario = vm.Scenarios.Single(s => s.Id == "future");
@@ -41,9 +42,33 @@ public static class DesktopChecks
             window.Width = 400; window.Height = 840; await Idle();
             var expanded = window.Height;
             var menu = ((Button)window.FindName("MoreButton")).ContextMenu;
+            menu.PlacementTarget = (Button)window.FindName("MoreButton"); menu.IsOpen = true; await Idle();
             var headers = menu.Items.OfType<MenuItem>().Select(i => i.Header?.ToString() ?? "").ToArray();
-            Check(!headers.Any(h => h.Contains("演示") || h.Contains("检查")), "Product menu contains no demo or debugging actions");
-            Check(headers.Contains("关于 Codex Reset"), "Product menu exposes About");
+            Check(!headers.Any(h => h.Contains("Demo") || h.Contains("Check")), "Product menu contains no demo or debugging actions");
+            Check(headers.Contains(L10n.Get("About.Title")), "Product menu exposes About");
+            LanguageService.Apply(LanguageMode.SimplifiedChinese); await Idle();
+            var languageMenu = (MenuItem)window.FindName("LanguageMenuItem");
+            var languagePeer = System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(languageMenu);
+            var expand = (System.Windows.Automation.Provider.IExpandCollapseProvider)languagePeer.GetPattern(System.Windows.Automation.Peers.PatternInterface.ExpandCollapse);
+            expand.Expand(); await Idle();
+            var submenu = languageMenu.Template.FindName("PART_Popup", languageMenu) as System.Windows.Controls.Primitives.Popup;
+            Check(submenu is { IsOpen: true } && submenu.Child is FrameworkElement { ActualWidth: > 0, ActualHeight: > 0 },
+                "Opening Language renders a visible submenu popup");
+            var englishItem = (MenuItem)window.FindName("EnglishLanguageItem");
+            Check(englishItem.IsVisible && PresentationSource.FromVisual(englishItem) is not null,
+                "English language option is reachable inside the displayed submenu");
+            var englishPeer = System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(englishItem);
+            ((System.Windows.Automation.Provider.IInvokeProvider)englishPeer.GetPattern(System.Windows.Automation.Peers.PatternInterface.Invoke)).Invoke(); await Idle();
+            Check(L10n.Mode == LanguageMode.English && !menu.IsOpen, "Invoking visible English option selects the language and closes the menu");
+            window.SaveSettings(); Check(store.Load().Language == "English", "Language selected through the popup persists to settings");
+            menu.IsOpen = true; await Idle(); expand.Expand(); await Idle();
+            Check(englishItem.Template.FindName("CheckMark", englishItem) is FrameworkElement { Visibility: Visibility.Visible },
+                "Reopened language submenu visibly marks the saved selection");
+            var popupContent = (FrameworkElement)submenu!.Child; popupContent.UpdateLayout();
+            var menuBitmap = new RenderTargetBitmap((int)Math.Ceiling(popupContent.ActualWidth), (int)Math.Ceiling(popupContent.ActualHeight), 96, 96, PixelFormats.Pbgra32);
+            menuBitmap.Render(popupContent); var menuEncoder = new PngBitmapEncoder(); menuEncoder.Frames.Add(BitmapFrame.Create(menuBitmap));
+            using (var menuFile = File.Create(Path.Combine(directory, "language-submenu.png"))) menuEncoder.Save(menuFile);
+            expand.Collapse(); menu.IsOpen = false;
             var about = new AboutWindow { Owner = window };
             about.Show(); await Idle(); about.UpdateLayout();
             Check(about.DisplayVersion.StartsWith(typeof(App).Assembly.GetName().Version!.ToString(3))
@@ -57,13 +82,18 @@ public static class DesktopChecks
                 using var file = File.Create(Path.Combine(directory, name + ".png")); encoder.Save(file);
             }
             await CaptureAbout("about-dark"); window.Theme.Apply(AppThemeMode.Light); await Idle(); await CaptureAbout("about-light");
+            LanguageService.Apply(LanguageMode.SimplifiedChinese); await Idle();
+            Check(about.Title == L10n.Get("About.Title") && ((TextBlock)about.FindName("VersionLabel")).Text == L10n.Format("About.Version", about.DisplayVersion),
+                "An open About window updates its title and version on language change");
+            await CaptureAbout("about-zh-CN-light"); window.Theme.Apply(AppThemeMode.Dark); await Idle(); await CaptureAbout("about-zh-CN-dark");
+            LanguageService.Apply(LanguageMode.English); await Idle();
             Check(about.ActualHeight > 200 && about.ActualHeight < 600 && ReferenceEquals(about.Owner, window), "About fits content and remains owned by the widget");
             about.Close(); Check(window.IsVisible && window.IsTicking, "Closing About leaves widget active");
             window.Theme.Apply(AppThemeMode.Dark);
             using var executableIcon = System.Drawing.Icon.ExtractAssociatedIcon(Environment.ProcessPath!);
             Check(executableIcon is not null, "Published executable has an embedded application icon");
             Check(new DesktopSettings().Compact && new DesktopSettings().Width == 400, "Fresh settings start compact at the approved width");
-            Check(vm.Announcement.Heading == "重置公告", "Announcement heading is constant");
+            Check(vm.Announcement.Heading == L10n.Get("Announcement.Title"), "Announcement heading is constant");
             var boardCard = (Border)window.FindName("CountdownCard");
             var announcementCard = (Border)window.FindName("AnnouncementCard");
             var announcementScroll = (ScrollViewer)window.FindName("AnnouncementScroll");
@@ -76,6 +106,33 @@ public static class DesktopChecks
             Check(announcementScroll.ScrollableHeight > 0, "Long announcement exposes internal scrolling");
             announcementScroll.ScrollToEnd(); await Idle();
             var bodyOffset = announcementScroll.VerticalOffset;
+            var languageEvent = vm.Announcement.CurrentEvent!.Key;
+            var languageMonth = vm.Calendar.VisibleMonth;
+            var languageDate = vm.Calendar.SelectedDate;
+            var languageTime = vm.Board.State.RelatedEvent!.ScheduledForUtc;
+            var originalText = vm.Announcement.Text;
+            ((MenuItem)window.FindName("ChineseLanguageItem")).RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent)); await Idle();
+            Check(L10n.Mode == LanguageMode.SimplifiedChinese && ((MenuItem)window.FindName("ChineseLanguageItem")).IsChecked,
+                "Language menu selects and marks Simplified Chinese");
+            Check(vm.Announcement.CurrentEvent!.Key == languageEvent && vm.Calendar.VisibleMonth == languageMonth
+                && vm.Calendar.SelectedDate == languageDate && vm.Board.State.RelatedEvent!.ScheduledForUtc == languageTime,
+                "Language changes preserve announcement calendar selection and absolute target");
+            Check(vm.Announcement.Text == originalText && Math.Abs(announcementScroll.VerticalOffset - bodyOffset) < 1,
+                "Language changes preserve the original post and its reading position");
+            Check(((TextBlock)window.FindName("CalendarHeading")).Text == L10n.Get("Calendar.Title")
+                && vm.Board.Title == L10n.Get("Board.Title"), "Chinese strings update static XAML and view models");
+            await Capture("expanded-zh-CN-dark");
+            window.SaveSettings(); Check(store.Load().Language == "SimplifiedChinese", "Manual language selection is saved");
+            ((MenuItem)window.FindName("EnglishLanguageItem")).RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent)); await Idle();
+            Check(L10n.Mode == LanguageMode.English && ((TextBlock)window.FindName("CalendarHeading")).Text == "Reset calendar",
+                "Language menu switches the existing window back to English");
+            await Capture("expanded-en-dark");
+            L10n.Apply(LanguageMode.System, System.Globalization.CultureInfo.GetCultureInfo("zh-TW")); await Idle();
+            Check(L10n.Locale == "zh-CN" && ((MenuItem)window.FindName("SystemLanguageItem")).IsChecked,
+                "System language maps Traditional Chinese to Simplified Chinese in the live window");
+            L10n.Apply(LanguageMode.System, System.Globalization.CultureInfo.GetCultureInfo("fr-FR")); await Idle();
+            Check(L10n.Locale == "en", "Other system languages use English in the live window");
+            LanguageService.Apply(LanguageMode.English); await Idle();
             vm.ToggleModeCommand.Execute(null); vm.ToggleModeCommand.Execute(null); await Idle();
             Check(bodyOffset > 0 && Math.Abs(announcementScroll.VerticalOffset - bodyOffset) < 1, "Mode changes preserve announcement body scroll");
             vm.SelectedScenario = vm.Scenarios.Single(s => s.Id == "future"); await Idle();
@@ -85,7 +142,7 @@ public static class DesktopChecks
             Check(icons.Length >= 9 && icons.All(i => i.Width == 16 && i.Height == 16), "Toolbar and navigation icons share a 16 DIP canvas");
             Check(Descendants(window).OfType<Button>().Where(b => b.Content is string k && k is "refresh" or "pin" or "pinned" or "up" or "down" or "more" or "close" or "left" or "right")
                 .All(b => b.Width == 28 && b.Height == 28), "All icon buttons use the approved 28 DIP bounds");
-            Check(!vm.Board.Summary.Contains("UTC") && !vm.Board.Summary.Contains("本地时间"), "Board summary contains no visible time-zone label");
+            Check(!vm.Board.Summary.Contains("UTC") && !vm.Board.Summary.Contains(L10n.Get("Time.Local")), "Board summary contains no visible time-zone label");
             var heading = (TextBlock)window.FindName("AnnouncementHeading");
             Check(heading.TransformToAncestor(window).Transform(new Point()).Y > boardCard.TransformToAncestor(window).Transform(new Point()).Y + boardCard.ActualHeight,
                 "Announcement heading does not overlap the countdown card");
@@ -107,7 +164,7 @@ public static class DesktopChecks
             var historical = vm.Announcement.SelectedEvent;
             Check(historical is not null && vm.Board.State.RelatedEvent.Key == current, "Older announcement changes reading without changing the board");
             vm.NewerAnnouncementCommand.Execute(null);
-            Check(vm.Announcement.CurrentEvent!.Key == current && vm.Announcement.Heading == "重置公告", "Newer announcement returns through chronological history with a constant heading");
+            Check(vm.Announcement.CurrentEvent!.Key == current && vm.Announcement.Heading == L10n.Get("Announcement.Title"), "Newer announcement returns through chronological history with a constant heading");
             vm.OlderAnnouncementCommand.Execute(null);
             historical = vm.Announcement.SelectedEvent;
             var month = vm.Calendar.VisibleMonth;

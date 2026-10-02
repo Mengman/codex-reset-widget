@@ -1,0 +1,56 @@
+Codex Reset {{VERSION}}
+Windows 11 x64 · Includes .NET 10 · Release candidate
+
+Getting started
+1. Extract the entire ZIP to a readable folder. Do not run the EXE inside the archive.
+2. Run CodexResetWidget.exe. No separate .NET installation is required.
+3. First launch uses compact mode and fetches real public data. No account or API key is needed.
+
+Language
+The interface follows your Windows display language by default. Simplified and Traditional Chinese select Simplified Chinese; all other languages select English.
+More → Language lets you select system language, English or Simplified Chinese. The choice is saved and takes effect immediately. Original post text is unchanged.
+
+Window and reading controls
+- Drag the title bar, app name or logo to move the window.
+- Use the pin button for always on top: outline and tilted means off; solid blue and upright means on.
+- Expand or collapse with the arrow button. Expanded mode shows countdown, announcements and calendar.
+- Browse posts with the previous and next buttons. Long posts scroll inside the fixed-height card.
+- Navigate calendar months with the arrows; Today returns to the current month. Select a date to read its records.
+- More provides theme, language, About and window controls. The refresh button checks announcements and history.
+- Closing hides the widget in the tray; click the tray icon to restore it. Use Exit in either menu to quit.
+- Win+D follows normal window behavior. Hidden or minimized windows stop second-by-second UI updates but retain background refresh.
+- Mode, size, position, pin state, theme and language selection are saved.
+
+Times and quota
+Dates follow the system time zone; original announcements are unchanged.
+The countdown is to an announced expected time. After that time, the widget shows the last announced reset time, without confirming personal quota restoration.
+Direct quota reset means the current quota is reset. Reset credit means an opportunity you can apply manually; check Codex for its expiry.
+Unknown times never produce a guessed countdown. Offline startup uses available cache and shows its status; without cache, use Refresh to retry.
+Check Codex for your actual quota.
+
+Data location
+%LocalAppData%\CodexResetWidget\settings.json: window, theme and language settings.
+%LocalAppData%\CodexResetWidget\cache\snapshot.json: public data cache, schema 1.
+%LocalAppData%\CodexResetWidget\logs\: current and previous diagnostic logs, typically below 1.1 MB combined.
+The application directory does not need to be writable. Avoid running multiple versions at once against the same user data.
+
+Upgrade
+1. Exit the old version from its tray menu.
+2. Extract the new ZIP to a new folder and run the new EXE.
+3. Compatible existing settings and cache are reused. Settings without a language preference use system language.
+Back up the user data folder while the app is closed if needed. Unsupported or damaged data falls back with a notice instead of preventing startup.
+
+Removal
+Exit the app and delete its extracted folder. User data is retained.
+To remove settings, cache and logs too, delete %LocalAppData%\CodexResetWidget\ after exiting.
+This version creates no startup registration, service or installer entry.
+
+About and licensing
+More → About Codex Reset shows the version, author, source and license.
+GitHub: https://github.com/Mengman
+Data: https://codex-resets.com/
+Project license: LICENSE (MIT). Runtime licenses: THIRD-PARTY-NOTICES.txt and ThirdParty/.
+The program is not code-signed; Windows publisher prompts depend on system policy.
+
+Validation status
+This is a release candidate pending final acceptance. A clean Windows 11 x64 machine without .NET, physical multi-monitor changes, OS scaling changes and actual suspend/resume still need testing.

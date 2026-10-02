@@ -24,30 +24,30 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private DateOnly _lastToday;
     public IReadOnlyList<DemoScenario> Scenarios => DemoData.Scenarios;
     public IReadOnlyList<ZoneOption> Zones { get; } =
-    [new("跟随电脑时区", null), new("UTC+08:00 · 中国", "China Standard Time"),
-     new("UTC+05:30 · 印度", "India Standard Time"), new("美国太平洋 · 夏令时", "Pacific Standard Time"), new("UTC", "UTC")];
+    [new("Use computer time zone", null), new("UTC+08:00 · China", "China Standard Time"),
+     new("UTC+05:30 · India", "India Standard Time"), new("US Pacific · daylight saving", "Pacific Standard Time"), new("UTC", "UTC")];
     public BoardViewModel Board { get; } = new();
     public AnnouncementViewModel Announcement { get; } = new();
     public CalendarViewModel Calendar { get; } = new();
     public WidgetSnapshot Snapshot => _snapshot;
     public TimeZoneInfo CurrentZone => _zones.CurrentZone;
     public bool IsDemo => _sync is null;
-    public string SourceCaption => IsDemo ? "模拟数据 · Codex Resets ↗" : "Codex Resets ↗";
-    public string DemoLabel => IsDemo ? "演示模式 · 模拟数据 · 不查询个人额度" : "公开公告 · 实际额度以 Codex 为准";
-    public string FooterTime => _snapshot.StatusHealth.IsLoading ? "正在检查公告…" : _snapshot.StatusHealth.LastSuccessAtUtc is { } at
-        ? $"{TimeZoneInfo.ConvertTime(at, _zones.CurrentZone):HH:mm} 更新" : "尚无成功检查";
-    public string HistoryHealthText => IsDemo ? "" : _snapshot.HistoryHealth.IsLoading ? "正在加载历史记录…"
-        : _snapshot.HistoryHealth.LastError is { } error ? $"历史：{error}" : _snapshot.HistoryHealth.LastSuccessAtUtc is { } at
-        ? $"{(_snapshot.HistoryHealth.IsFromCache ? "缓存 · " : "")}{(_snapshot.History.IsComplete ? "历史检查于" : "历史尚未完整 · 检查于")} {TimeDisplay.DateTime(at, _zones.CurrentZone)}{(_snapshot.HistoryHealth.IsStale ? " · 可能已过期" : "")}" : "历史记录尚未加载";
+    public string SourceCaption => IsDemo ? L10n.Get("Source.Sample") : "Codex Resets ↗";
+    public string DemoLabel => L10n.Get(IsDemo ? "Demo.Label" : "Public.Label");
+    public string FooterTime => _snapshot.StatusHealth.IsLoading ? L10n.Get("Footer.Checking") : _snapshot.StatusHealth.LastSuccessAtUtc is { } at
+        ? L10n.Format("Footer.Updated", TimeZoneInfo.ConvertTime(at, _zones.CurrentZone).ToString("HH:mm", L10n.Culture)) : L10n.Get("Footer.NeverChecked");
+    public string HistoryHealthText => IsDemo ? "" : _snapshot.HistoryHealth.IsLoading ? L10n.Get("History.Loading")
+        : _snapshot.HistoryHealth.LastError is { } error ? L10n.Format("History.Error", L10n.Message(error)) : _snapshot.HistoryHealth.LastSuccessAtUtc is { } at
+        ? $"{(_snapshot.HistoryHealth.IsFromCache ? L10n.Get("History.Cached") : "")}{L10n.Get(_snapshot.History.IsComplete ? "History.Checked" : "History.PartialChecked")} {TimeDisplay.DateTime(at, _zones.CurrentZone)}{(_snapshot.HistoryHealth.IsStale ? L10n.Get("History.StaleSuffix") : "")}" : L10n.Get("History.NotLoaded");
     public string HistoryNotice => _snapshot.HistoryHealth.LastError is not null || !_snapshot.History.IsComplete || _snapshot.HistoryHealth.IsStale ? HistoryHealthText : "";
     public bool HasHistoryNotice => !IsDemo && HistoryNotice.Length > 0;
-    public string CacheWarning => _sync?.CacheWarning ?? "";
+    public string CacheWarning => L10n.Message(_sync?.CacheWarning);
     public string UpstreamTime => _snapshot.Status?.GeneratedAtUtc is { } at
-        ? $"上游响应生成于 {TimeDisplay.DateTime(at, _zones.CurrentZone, true)}；检查成功不代表上游已采集最新公告。" : "上游尚未提供生成时间。";
+        ? L10n.Format("Upstream.Generated", TimeDisplay.DateTime(at, _zones.CurrentZone, true)) : L10n.Get("Upstream.NoTime");
     public string FooterZone => TimeDisplay.ZoneLabel(_clock.UtcNow, _zones.CurrentZone, _zones.FollowsSystem);
     public bool IsCompact { get => _compact; private set { if (Set(ref _compact, value)) { Changed(nameof(IsExpanded)); Changed(nameof(ModeAction)); } } }
     public bool IsExpanded => !IsCompact;
-    public string ModeAction => IsCompact ? "展开" : "收起";
+    public string ModeAction => L10n.Get(IsCompact ? "Action.Expand" : "Action.Collapse");
     public bool IsPinned { get => _pinned; set => Set(ref _pinned, value); }
     public bool ToolsOpen { get => _toolsOpen; set => Set(ref _toolsOpen, value); }
     public DemoScenario SelectedScenario
@@ -163,6 +163,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         var today = CalendarService.LocalDate(now, _zones.CurrentZone);
         if (today != _lastToday || previous != Board.State.Status) { _lastToday = today; RebuildCalendar(); }
         Changed(nameof(FooterZone));
+    }
+    public void RefreshLanguage()
+    {
+        Announcement.UpdateZone(_zones.CurrentZone, _zones.FollowsSystem);
+        RebuildCalendar(); Tick(); AllChanged();
     }
     public void RefreshSystemTimeZone() => _zones.Refresh();
     public void RefreshAfterResume() { if (_sync is not null) _ = _sync.PollAsync(); }

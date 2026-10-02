@@ -16,7 +16,7 @@ public static class LiveChecks
     {
         Directory.CreateDirectory(directory);
         var startup = new { Compact = window.Model.IsCompact, Pinned = window.Model.IsPinned,
-            Theme = window.Theme.Mode.ToString(), window.Width, window.Height };
+            Theme = window.Theme.Mode.ToString(), Language = L10n.Mode.ToString(), Locale = L10n.Locale, window.Width, window.Height };
         window.Model.ApplySnapshot(sync.Current);
         foreach (var theme in new[] { AppThemeMode.Light, AppThemeMode.Dark })
         {

@@ -106,7 +106,7 @@ public sealed class SyncController(IResetProvider provider, ICacheStore cache, I
             var actual = error is PartialHistoryException p ? p.InnerException! : error;
             log?.Invoke($"{(status ? "Status" : "History")} {actual.GetType().Name}: {actual.Message} {actual.InnerException?.GetType().Name}: {actual.InnerException?.Message}");
             var message = actual is ApiException ? actual.Message : actual is System.Text.Json.JsonException or KeyNotFoundException
-                ? "接口数据格式异常，保留已有数据。" : actual is OperationCanceledException ? "请求超时，保留已有数据。" : "更新失败，请检查网络；保留已有数据。";
+                ? "Error.MalformedData" : actual is OperationCanceledException ? "Error.Timeout" : "Error.UpdateFailed";
             var retry = actual is ApiException { RetryAfter: { } wait } ? wait
                 : TimeSpan.FromMinutes(Math.Min(30, 5 * Math.Pow(2, Math.Min(channel.Failures++, 3)))) + TimeSpan.FromSeconds(Random.Shared.Next(0, 30));
             channel.Due = clock.UtcNow + retry;
@@ -152,7 +152,7 @@ public sealed class SyncController(IResetProvider provider, ICacheStore cache, I
         }
         catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
         catch (Exception error) when (error is System.IO.IOException or UnauthorizedAccessException)
-        { CacheWarning = "缓存无法保存；当前数据仍可阅读，下次启动可能无法离线恢复。"; log?.Invoke(CacheWarning); Publish(s => s); }
+        { CacheWarning = "Error.CacheSave"; log?.Invoke(CacheWarning); Publish(s => s); }
     }
     public void Dispose()
     {

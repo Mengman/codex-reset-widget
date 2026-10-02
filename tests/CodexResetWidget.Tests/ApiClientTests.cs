@@ -123,7 +123,7 @@ internal static class ApiClientTests
         {
             using var http = new HttpClient(new Handler((_, _) => Task.FromResult(Ok(Page(EventJson("a"), true, "abc")))));
             try { await new CodexResetsClient(http).GetHistoryAsync(new HashSet<EventKey>(), true, default); throw new Exception("Expected cursor error"); }
-            catch (PartialHistoryException error) { Assert(error.Message.Contains("重复")); }
+            catch (PartialHistoryException error) { Assert(error.Message == "Api.CursorRepeated"); }
         });
 
         return tests.Result;

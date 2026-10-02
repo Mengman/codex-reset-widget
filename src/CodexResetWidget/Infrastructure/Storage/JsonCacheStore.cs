@@ -21,21 +21,21 @@ public sealed class JsonCacheStore(string directory) : ICacheStore
         try
         {
             if (!File.Exists(FilePath)) return new(null);
-            if (new FileInfo(FilePath).Length > 16_000_000) throw new InvalidDataException("缓存过大");
+            if (new FileInfo(FilePath).Length > 16_000_000) throw new InvalidDataException("Cache is too large");
             var text = await File.ReadAllTextAsync(FilePath, token);
             var envelope = JsonSerializer.Deserialize<CacheEnvelope>(text, Json);
             if (envelope?.SchemaVersion != 1 || envelope.Snapshot is null || envelope.Documents is null
                 || envelope.Snapshot.History?.Events is null || envelope.Snapshot.StatusHealth is null
                 || envelope.Snapshot.HistoryHealth is null || envelope.Snapshot.Pending is { LastKnownEvent: null })
-                throw new InvalidDataException("缓存版本或结构无效");
+                throw new InvalidDataException("Invalid cache version or structure");
             foreach (var reset in envelope.Snapshot.History.Events.Concat(new[] { envelope.Snapshot.Status?.ScheduledReset,
                 envelope.Snapshot.Status?.LatestReset, envelope.Snapshot.Pending?.LastKnownEvent }.OfType<ResetEvent>()))
                 if (reset is null || string.IsNullOrWhiteSpace(reset.Key.Id) || reset.Text is null || reset.Key.Provider != CodexResetsClient.Provider)
-                    throw new InvalidDataException("缓存记录无效");
+                    throw new InvalidDataException("Invalid cache record");
             return new(envelope);
         }
         catch (Exception error) when (error is IOException or InvalidDataException or UnauthorizedAccessException or JsonException or NotSupportedException)
-        { return new(null, "本地缓存无法读取，正在重新获取数据。"); }
+        { return new(null, "Error.CacheRead"); }
     }
     public async Task SaveAsync(CacheEnvelope envelope, CancellationToken token)
     {

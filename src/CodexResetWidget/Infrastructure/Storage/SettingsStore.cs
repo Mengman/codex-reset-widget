@@ -20,7 +20,7 @@ public sealed class SettingsStore(string directory)
             return settings;
         }
         catch (Exception error) when (error is IOException or InvalidDataException or UnauthorizedAccessException or JsonException)
-        { Warning = "设置无法读取，已使用默认布局。"; return new(); }
+        { Warning = "Error.SettingsRead"; return new(); }
     }
     public void Save(DesktopSettings settings)
     {
@@ -34,7 +34,7 @@ public sealed class SettingsStore(string directory)
             Warning = null;
         }
         catch (Exception error) when (error is IOException or InvalidDataException or UnauthorizedAccessException)
-        { Warning = "设置无法保存；本次操作仍然有效。"; }
+        { Warning = "Error.SettingsSave"; }
         finally
         {
             try { if (File.Exists(temporary)) File.Delete(temporary); }

@@ -41,8 +41,10 @@ if ($LASTEXITCODE -ne 0) { throw 'Portable publish failed.' }
 $version = (Get-Item -LiteralPath (Join-Path $portableDirectory 'CodexResetWidget.exe')).VersionInfo.ProductVersion.Split('+')[0]
 if ($version -notmatch '^\d+\.\d+\.\d+([-.][a-zA-Z0-9.]+)?$') { throw 'Invalid release version.' }
 Copy-Item -LiteralPath (Join-Path $projectRoot 'LICENSE') -Destination $portableDirectory
-$usage = (Get-Content -LiteralPath (Join-Path $projectRoot 'docs\release-usage.txt') -Raw).Replace('{{VERSION}}', $version)
+$usage = (Get-Content -LiteralPath (Join-Path $projectRoot 'docs\release-usage.en.txt') -Raw).Replace('{{VERSION}}', $version)
 Set-Content -LiteralPath (Join-Path $portableDirectory 'README.txt') -Value $usage -Encoding utf8
+$chineseUsage = (Get-Content -LiteralPath (Join-Path $projectRoot 'docs\release-usage.txt') -Raw).Replace('{{VERSION}}', $version)
+Set-Content -LiteralPath (Join-Path $portableDirectory 'README.zh-CN.txt') -Value $chineseUsage -Encoding utf8
 Copy-Item -LiteralPath (Join-Path $projectRoot 'docs\third-party-notices.txt') -Destination (Join-Path $portableDirectory 'THIRD-PARTY-NOTICES.txt')
 $runtimeManifest = Get-Content -LiteralPath (Join-Path $portableDirectory 'CodexResetWidget.runtimeconfig.json') -Raw | ConvertFrom-Json
 foreach ($framework in $runtimeManifest.runtimeOptions.includedFrameworks) {

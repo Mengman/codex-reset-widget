@@ -15,35 +15,35 @@ public sealed class BoardViewModel : ObservableObject
     public bool HasNotice => Notice.Length > 0;
     public string Title => _state.Status switch
     {
-        BoardStatus.Countdown => "重置倒计时",
-        BoardStatus.RecentAnnouncement => "最近公告的预计重置时间", _ => "重置倒计时"
+        BoardStatus.Countdown => L10n.Get("Board.Title"),
+        BoardStatus.RecentAnnouncement => L10n.Get("Board.RecentTitle"), _ => L10n.Get("Board.Title")
     };
-    public string Badge => _health.IsLoading && _state.RelatedEvent is null ? "加载中" : _state.Status switch
+    public string Badge => _health.IsLoading && _state.RelatedEvent is null ? L10n.Get("Board.Loading") : _state.Status switch
     {
-        BoardStatus.Countdown => "已预告", BoardStatus.RecentAnnouncement => "预计时间已到",
-        BoardStatus.TimeUnknown => "时间未定", BoardStatus.Watch => "观察信号", _ => "尚未公布"
+        BoardStatus.Countdown => L10n.Get("Board.Announced"), BoardStatus.RecentAnnouncement => L10n.Get("Board.TimeReached"),
+        BoardStatus.TimeUnknown => L10n.Get("Board.TimeUnknown"), BoardStatus.Watch => L10n.Get("Board.Watch"), _ => L10n.Get("Board.NoAnnouncement")
     };
     public string Countdown => TimeDisplay.Countdown(_state.Remaining);
     public string MainDate => _state.RelatedEvent?.ScheduledForUtc is { } instant ? TimeDisplay.DateTime(instant, _zone) : "";
-    public string EmptyText => _health.IsLoading ? "正在加载公告" : _health.LastError is not null && _state.RelatedEvent is null ? "暂时无法获取公告" : _state.Status switch
+    public string EmptyText => _health.IsLoading ? L10n.Get("Board.LoadingText") : _health.LastError is not null && _state.RelatedEvent is null ? L10n.Get("Board.FetchFailed") : _state.Status switch
     {
-        BoardStatus.TimeUnknown => "重置已预告\n具体时间待公布",
-        BoardStatus.Watch => "有重置信号\n时间未定", _ => "下一次重置\n尚未公布"
+        BoardStatus.TimeUnknown => L10n.Get("Board.TimeUnknownText"),
+        BoardStatus.Watch => L10n.Get("Board.WatchText"), _ => L10n.Get("Board.NoAnnouncementText")
     };
     public string ZoneLabel => TimeDisplay.ZoneLabel(_state.RelatedEvent?.ScheduledForUtc ?? _now, _zone, _followsSystem);
     public string Summary => Supporting;
-    public string ZoneName => _zone.DisplayName;
-    public string Supporting => _state.RelatedEvent is { } reset ? TimeDisplay.TypeLabel(reset) : "以公开公告为依据";
+    public string ZoneName => $"{ZoneLabel} · {_zone.Id}";
+    public string Supporting => _state.RelatedEvent is { } reset ? TimeDisplay.TypeLabel(reset) : L10n.Get("Board.BasedOnPublic");
     public string Notice
     {
         get
         {
             var notices = new List<string>();
-            if (_state.AnnouncementUnconfirmed) notices.Add("该预告已不在当前数据源中，状态待确认。");
-            if (_state.TargetChanged) notices.Add("公告时间已更新。");
-            if (_health.IsFromCache) notices.Add($"缓存：{(_health.LastSuccessAtUtc is { } at ? TimeDisplay.DateTime(at, _zone) : "时间未知")}");
-            if (_health.IsStale) notices.Add("数据可能已过期。");
-            if (_health.LastError is not null) notices.Add(_health.LastError);
+            if (_state.AnnouncementUnconfirmed) notices.Add(L10n.Get("Notice.Withdrawn"));
+            if (_state.TargetChanged) notices.Add(L10n.Get("Notice.Retimed"));
+            if (_health.IsFromCache) notices.Add(L10n.Format("Notice.Cache", _health.LastSuccessAtUtc is { } at ? TimeDisplay.DateTime(at, _zone) : L10n.Get("Common.UnknownTime")));
+            if (_health.IsStale) notices.Add(L10n.Get("Notice.Stale"));
+            if (_health.LastError is not null) notices.Add(L10n.Message(_health.LastError));
             return string.Join("\n", notices);
         }
     }
@@ -53,4 +53,3 @@ public sealed class BoardViewModel : ObservableObject
         AllChanged();
     }
 }
-

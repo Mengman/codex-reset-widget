@@ -27,9 +27,32 @@
   </Style>
   <Style TargetType="MenuItem">
     <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+    <Setter Property="FontSize" Value="13" />
     <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="MenuItem">
-      <Border x:Name="MenuRow" Background="Transparent" CornerRadius="4" Padding="10,7"><ContentPresenter ContentSource="Header" /></Border>
-      <ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="MenuRow" Property="Background" Value="{DynamicResource HoverBrush}" /></Trigger></ControlTemplate.Triggers>
+      <Grid>
+        <Border x:Name="MenuRow" Background="Transparent" CornerRadius="4" Padding="8,7">
+          <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/><ColumnDefinition Width="20"/></Grid.ColumnDefinitions>
+            <TextBlock x:Name="CheckMark" Text="✓" FontSize="13" Foreground="{TemplateBinding Foreground}" Visibility="Collapsed" VerticalAlignment="Center" />
+            <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <ui:VectorIcon x:Name="SubmenuArrow" Grid.Column="2" Kind="right" Foreground="{TemplateBinding Foreground}" Visibility="Collapsed" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+        <Popup x:Name="PART_Popup" Placement="Right" PlacementTarget="{Binding ElementName=MenuRow}" HorizontalOffset="-1"
+               IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+          <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="4">
+            <ScrollViewer CanContentScroll="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle" KeyboardNavigation.TabNavigation="Cycle" />
+            </ScrollViewer>
+          </Border>
+        </Popup>
+      </Grid>
+      <ControlTemplate.Triggers>
+        <Trigger Property="HasItems" Value="True"><Setter TargetName="SubmenuArrow" Property="Visibility" Value="Visible" /></Trigger>
+        <Trigger Property="IsChecked" Value="True"><Setter TargetName="CheckMark" Property="Visibility" Value="Visible" /></Trigger>
+        <Trigger Property="IsHighlighted" Value="True"><Setter TargetName="MenuRow" Property="Background" Value="{DynamicResource HoverBrush}" /></Trigger>
+        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="MenuRow" Property="Opacity" Value="0.45" /></Trigger>
+      </ControlTemplate.Triggers>
     </ControlTemplate></Setter.Value></Setter>
   </Style>
   <Style TargetType="Separator"><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Separator"><Border Height="1" Background="{DynamicResource BorderBrush}" Margin="6,4" /></ControlTemplate></Setter.Value></Setter></Style>

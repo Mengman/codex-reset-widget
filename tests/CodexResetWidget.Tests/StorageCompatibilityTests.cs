@@ -22,7 +22,7 @@ internal static class StorageCompatibilityTests
                 """);
             var settings = new SettingsStore(directory).Load();
             Assert(!settings.Compact && settings.Pinned && settings.Width == 440 && settings.ExpandedHeight == 1020
-                && settings.Theme == "Light" && settings.PhysicalLeft == -1500 && settings.TrayHintShown);
+                && settings.Theme == "Light" && settings.PhysicalLeft == -1500 && settings.TrayHintShown && settings.Language == "System");
             return Task.CompletedTask;
         });
         await tests.CheckAsync("Schema-1 cache survives upgrade and offline startup after expected time", async () =>

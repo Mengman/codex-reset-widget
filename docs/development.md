@@ -24,9 +24,10 @@
 | 窗口位置 | WindowPlacementTests.cs | DPI 换算、负坐标、工作区限制和缺失显示器 |
 | 设置存储 | SettingsStoreTests.cs | 默认设置、持久化、坏文件、非法保存和写入失败 |
 | 格式兼容 | StorageCompatibilityTests.cs | 格式版本 1 的设置恢复与旧缓存离线跨目标时间 |
+| 国际化 | LocalizationTests.cs | 系统语言映射、双语资源、日期格式、实时切换通知、旧消息翻译与设置保存 |
 | 诊断日志 | DiagnosticLogTests.cs | 容量限制、滚动、单行输出与不可写位置 |
 
-当前共 89 项检查。共用断言位于 TestSuite.cs，共用 HTTP、时钟、缓存和数据源替身位于 SyncTestData.cs。测试数据按数据格式版本识别，与开发阶段无关。
+当前共 110 项检查。共用断言位于 TestSuite.cs，共用 HTTP、时钟、缓存和数据源替身位于 SyncTestData.cs。测试数据按数据格式版本识别，与开发阶段无关。
 
 ## 界面与桌面检查
 
@@ -35,7 +36,7 @@
 ```
 
 - `PrototypeChecks` 是现有 WPF 场景检查入口，覆盖倒计时、到点、未知时间、布局溢出和绑定错误，共 13 项。
-- `DesktopChecks` 覆盖卡片固定高度、统一图标、主题、置顶、模式、阅读位置、托盘、退出与关于，共 46 项。
+- `DesktopChecks` 覆盖卡片固定高度、统一图标、主题、置顶、模式、阅读位置、托盘、退出与关于，共 60 项。
 - 模拟场景只由自动检查参数注入，产品界面不提供演示菜单。
 - 100%／200% 工作区模拟与注入时区不能替代真实系统设置变更、显示器插拔或休眠验证。
 
@@ -43,7 +44,7 @@
 
 ```powershell
 .\scripts\build.ps1 -Publish -RunUiChecks -RunDesktopChecks -RunLiveChecks
-.\scripts\verify-package.ps1 -ArchivePath artifacts\releases\CodexResetWidget-1.0.0-rc.1-win-x64.zip -RunDesktopChecks
+.\scripts\verify-package.ps1 -ArchivePath artifacts\releases\CodexResetWidget-1.0.0-rc.2-win-x64.zip -RunDesktopChecks
 ```
 
 发布脚本从 EXE 读取版本，创建新的 staging 目录并生成自包含 ZIP。包内包含项目许可、运行时包原始许可、使用说明和 RELEASE.json；包外提供 SHA256 校验文件。

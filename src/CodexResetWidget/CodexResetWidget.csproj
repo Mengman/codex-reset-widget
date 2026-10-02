@@ -8,9 +8,10 @@
     <NoWarn>$(NoWarn);WFO0003</NoWarn>
     <AssemblyName>CodexResetWidget</AssemblyName>
     <Version>1.0.0</Version>
-    <InformationalVersion>1.0.0-rc.1</InformationalVersion>
+    <InformationalVersion>1.0.0-rc.2</InformationalVersion>
     <ApplicationIcon>Resources/Application.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup><Using Remove="System.Windows.Forms" /><Using Remove="System.Drawing" /></ItemGroup>
+  <ItemGroup><EmbeddedResource Include="Localization/Strings.*.json" WithCulture="false" LogicalName="CodexResetWidget.Localization.%(Filename)%(Extension)" /></ItemGroup>
 </Project>

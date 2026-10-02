@@ -8,11 +8,11 @@ public static class DemoData
 {
     public static IReadOnlyList<DemoScenario> Scenarios { get; } =
     [
-        new("future", "未来预告"), new("arriving", "12 秒后到点"), new("past", "预计时间已到"),
-        new("unknown", "时间待公布"), new("watch", "仅观察信号"), new("none", "没有预告"),
-        new("missing", "预告消失"), new("retimed", "公告时间更正"), new("cache", "缓存与更新失败"),
-        new("loading", "首次加载"), new("error", "首次离线"), new("long", "长公告"),
-        new("multi", "同日多事件")
+        new("future", "Upcoming announcement"), new("arriving", "Target in 12 seconds"), new("past", "Expected time reached"),
+        new("unknown", "Time not specified"), new("watch", "Watch signal only"), new("none", "No announcement"),
+        new("missing", "Announcement withdrawn"), new("retimed", "Announced time changed"), new("cache", "Cache and update failure"),
+        new("loading", "Initial loading"), new("error", "First launch offline"), new("long", "Long announcement"),
+        new("multi", "Same-day events")
     ];
 
     public static WidgetSnapshot Create(string scenario, DateTimeOffset nowUtc, TimeZoneInfo zone)
@@ -26,13 +26,13 @@ public static class DemoData
             var published = new DateTimeOffset(TimeZoneInfo.ConvertTimeToUtc(month.AddDays(day - 1), zone));
             history.Add(new(new("demo", $"history-{day}"), day % 2 == 0 ? ResetType.Regular : ResetType.Banked,
                 EventStatus.Recorded, SourceKind.Announcement, published, null,
-                day % 2 == 0 ? "Global reset announced. This is sample text for the M1 interface preview."
+                day % 2 == 0 ? "Global reset announced. This is sample text for the interface preview."
                     : "Banked reset announced. This sample does not confirm an individual account balance.",
                 null, "Tibo", "@thsottiaux"));
         }
         var todayUtc = new DateTimeOffset(TimeZoneInfo.ConvertTimeToUtc(local.Date.AddHours(10), zone));
         history.Add(new(new("demo", "today-observed"), ResetType.Unknown, EventStatus.Recorded,
-            SourceKind.Observed, todayUtc, null, "模拟观察记录：没有原始推文，也没有作者或来源链接。", RawType: "observed"));
+            SourceKind.Observed, todayUtc, null, "Sample observed record with no original post, author or source link.", RawType: "observed"));
         if (scenario == "multi")
         {
             history.Add(new(new("demo", "today-regular"), ResetType.Regular, EventStatus.Recorded,
@@ -49,16 +49,16 @@ public static class DemoData
         var text = "Global reset landing tomorrow. This is a sample announcement for the widget preview; the date and countdown are demo data.";
         if (scenario is "past" or "missing") text = "Global reset scheduled for earlier today. This is sample announcement text; it does not confirm that any individual account received a reset.";
         if (scenario == "long") text = string.Join("\n\n", Enumerable.Repeat(
-            "Global reset announcement preview. The widget converts the structured API timestamp to your computer's time zone.\n这是一条用于检查换行、滚动和阅读体验的模拟长公告，时间与历史标记都属于演示数据。", 5));
+            "Global reset announcement preview. The widget converts the structured API timestamp to your computer's time zone.\nThis long sample checks wrapping, scrolling and reading; dates and markers are test data.", 5));
         var announcement = new ResetEvent(new("demo", "current"), ResetType.Regular,
             EventStatus.Scheduled, SourceKind.Announcement, nowUtc.AddHours(scenario == "past" ? -3 : -1),
             scenario == "unknown" ? null : target, text, null, "Tibo", "@thsottiaux");
         var health = new DataHealth(LastSuccessAtUtc: nowUtc);
         if (scenario == "cache") health = new(IsFromCache: true, IsStale: true,
-            LastSuccessAtUtc: nowUtc.AddHours(-1), LastError: "模拟网络请求失败");
+            LastSuccessAtUtc: nowUtc.AddHours(-1), LastError: "Error.UpdateFailed");
         if (scenario is "loading" or "error")
             return new(1, null, new([], false, null), null,
-                scenario == "loading" ? new(IsLoading: true) : new(LastError: "模拟离线：尚无可用缓存"),
+                scenario == "loading" ? new(IsLoading: true) : new(LastError: "Error.UpdateFailed"),
                 new(IsLoading: scenario == "loading"));
         var show = scenario is not ("none" or "watch" or "missing");
         return new(1, new(show ? announcement : null,

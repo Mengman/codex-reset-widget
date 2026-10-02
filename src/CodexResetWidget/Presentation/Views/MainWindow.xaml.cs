@@ -38,6 +38,9 @@ public partial class MainWindow : Window
     {
         Model = model; Theme = theme; _store = store; _settings = settings ?? new(); _enableBackdrop = enableBackdrop;
         InitializeComponent(); DataContext = model;
+        Language = System.Windows.Markup.XmlLanguage.GetLanguage(L10n.Culture.Name);
+        Model.RefreshLanguage(); UpdateLanguageMenu();
+        L10n.Changed += LanguageChanged;
         _placement = new(this);
         var readingKey = Model.Announcement.CurrentEvent?.Key;
         Model.Announcement.PropertyChanged += AnnouncementChanged;
@@ -79,7 +82,7 @@ public partial class MainWindow : Window
         LocationChanged += (_, _) => ScheduleSave();
         SizeChanged += (_, _) =>
         {
-            if (!_restoring && !Model.IsCompact && WindowState == WindowState.Normal) _expandedHeight = ActualHeight;
+            if (!_restoring && !Model.IsCompact && WindowState == WindowState.Normal) _expandedHeight = Height;
             ScheduleSave();
         };
         DpiChanged += (_, _) => Dispatcher.BeginInvoke(_placement.EnsureVisible, DispatcherPriority.Loaded);
@@ -95,6 +98,7 @@ public partial class MainWindow : Window
             SystemEvents.TimeChanged -= TimeChanged; SystemEvents.PowerModeChanged -= PowerChanged;
             SystemEvents.UserPreferenceChanged -= PreferenceChanged; SystemEvents.DisplaySettingsChanged -= DisplayChanged;
             Model.Dispose();
+            L10n.Changed -= LanguageChanged;
         };
     }
 
@@ -109,7 +113,7 @@ public partial class MainWindow : Window
     {
         if (Model.IsCompact)
         {
-            _expandedHeight = ActualHeight; _expandedScroll = ContentScroll.VerticalOffset;
+            _expandedHeight = Height; _expandedScroll = ContentScroll.VerticalOffset;
             Height = CompactHeight; ContentScroll.ScrollToTop();
         }
         else
@@ -134,18 +138,17 @@ public partial class MainWindow : Window
     {
         var bounds = _placement.CurrentBounds();
         return _settings with { Width = Math.Clamp(ActualWidth, 370, 4000), ExpandedHeight = Math.Clamp(_expandedHeight, 260, 5000),
-            Compact = Model.IsCompact, Pinned = Model.IsPinned, Theme = Theme.Mode.ToString(), Monitor = _placement.CurrentMonitor(),
+            Compact = Model.IsCompact, Pinned = Model.IsPinned, Theme = Theme.Mode.ToString(), Language = L10n.Mode.ToString(), Monitor = _placement.CurrentMonitor(),
             PhysicalLeft = bounds.X, PhysicalTop = bounds.Y };
     }
     public void SaveSettings()
     {
         if (_store is null || !IsLoaded) return;
         _settings = WindowState == WindowState.Normal ? CaptureSettings() : _settings with
-            { Compact = Model.IsCompact, Pinned = Model.IsPinned, Theme = Theme.Mode.ToString() };
+            { Compact = Model.IsCompact, Pinned = Model.IsPinned, Theme = Theme.Mode.ToString(), Language = L10n.Mode.ToString() };
         _store.Save(_settings); UpdateNotice();
     }
-    private void UpdateNotice() => DesktopNotice.Text = _store?.Warning
-        ?? "";
+    private void UpdateNotice() => DesktopNotice.Text = L10n.Message(_store?.Warning);
     public void HideToTray()
     {
         if (_tray is null) { WindowState = WindowState.Minimized; return; }
@@ -176,10 +179,26 @@ public partial class MainWindow : Window
     private void PowerChanged(object sender, PowerModeChangedEventArgs e)
     { if (e.Mode == PowerModes.Resume) Dispatcher.BeginInvoke(() => { RefreshTime(); Model.RefreshAfterResume(); }); }
     private void PreferenceChanged(object sender, UserPreferenceChangedEventArgs e) => Dispatcher.BeginInvoke(() =>
-    { Theme.Apply(Theme.Mode); RefreshTime(); });
+    { Theme.Apply(Theme.Mode); LanguageService.RefreshSystemLanguage(); RefreshTime(); });
     private void DisplayChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(_placement.EnsureVisible);
     private void ShowMenu(object sender, RoutedEventArgs e) { MoreButton.ContextMenu.PlacementTarget = MoreButton; MoreButton.ContextMenu.IsOpen = true; }
     private void SelectTheme(object sender, RoutedEventArgs e) { if (sender is MenuItem { Tag: string tag } && Enum.TryParse<AppThemeMode>(tag, out var mode)) Theme.Apply(mode); }
+    private void SelectLanguage(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem { Tag: string tag } && Enum.TryParse<LanguageMode>(tag, out var mode)) LanguageService.Apply(mode);
+        UpdateLanguageMenu();
+        MoreButton.ContextMenu.IsOpen = false;
+    }
+    private void UpdateLanguageMenu()
+    {
+        SystemLanguageItem.IsChecked = L10n.Mode == LanguageMode.System;
+        EnglishLanguageItem.IsChecked = L10n.Mode == LanguageMode.English;
+        ChineseLanguageItem.IsChecked = L10n.Mode == LanguageMode.SimplifiedChinese;
+    }
+    private void LanguageChanged(object? sender, EventArgs e)
+    {
+        Model.RefreshLanguage(); UpdateLanguageMenu(); UpdateNotice(); ScheduleSave();
+    }
     private void ShowAbout(object sender, RoutedEventArgs e) => new AboutWindow { Owner = this }.ShowDialog();
     private void OpenAnnouncement(object sender, RoutedEventArgs e)
     {

@@ -36,6 +36,7 @@ public partial class App : System.Windows.Application
             : Path.GetDirectoryName(cacheRoot)!;
         var store = !demo || desktopIndex >= 0 || settingsArg >= 0 ? new SettingsStore(settingsRoot) : null;
         var settings = store?.Load() ?? new CodexResetWidget.Domain.DesktopSettings();
+        LanguageService.Initialize(Enum.Parse<LanguageMode>(settings.Language));
         theme.Apply(Enum.Parse<AppThemeMode>(settings.Theme));
         model.RestoreDesktop(settings.Compact, settings.Pinned);
         var window = new MainWindow(model, theme, store, settings, enableTray: !demo || desktopIndex >= 0,

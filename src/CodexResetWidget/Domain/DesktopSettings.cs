@@ -2,7 +2,7 @@ namespace CodexResetWidget.Domain;
 
 public sealed record DesktopSettings(int SchemaVersion = 1, double Width = 400, double ExpandedHeight = 840,
     bool Compact = true, bool Pinned = false, string Theme = "System", string? Monitor = null,
-    double? PhysicalLeft = null, double? PhysicalTop = null, bool TrayHintShown = false);
+    double? PhysicalLeft = null, double? PhysicalTop = null, bool TrayHintShown = false, string Language = "System");
 public readonly record struct DesktopRect(double X, double Y, double Width, double Height);
 public sealed record MonitorArea(string Name, DesktopRect WorkArea, double Scale);
 
@@ -13,7 +13,8 @@ public static class PlacementPolicy
         && double.IsFinite(settings.ExpandedHeight) && settings.ExpandedHeight is >= 260 and <= 5000
         && (settings.PhysicalLeft is null || double.IsFinite(settings.PhysicalLeft.Value))
         && (settings.PhysicalTop is null || double.IsFinite(settings.PhysicalTop.Value))
-        && settings.Theme is "System" or "Light" or "Dark";
+        && settings.Theme is "System" or "Light" or "Dark"
+        && settings.Language is "System" or "English" or "SimplifiedChinese";
 
     public static (MonitorArea Monitor, DesktopRect Bounds) Restore(DesktopSettings settings, IReadOnlyList<MonitorArea> monitors)
     {

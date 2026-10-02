@@ -15,7 +15,7 @@ internal static class SyncControllerTests
         await tests.CheckAsync("429 Retry-After remains binding on manual refresh", async () =>
         {
             var calls = 0; var clock = new TestClock(Now);
-            var provider = new FakeProvider { Status = (_, _) => { calls++; throw new ApiException("限流", TimeSpan.FromMinutes(10)); } };
+            var provider = new FakeProvider { Status = (_, _) => { calls++; throw new ApiException("Rate limited", TimeSpan.FromMinutes(10)); } };
             using var sync = new SyncController(provider, new MemoryCache(), clock);
             await sync.InitializeAsync(); await sync.RefreshAsync(); Assert(calls == 1);
             clock.UtcNow = Now.AddMinutes(10); await sync.PollAsync(); Assert(calls == 2);
@@ -66,7 +66,7 @@ internal static class SyncControllerTests
             var calls = 0; var old = Snapshot(Now).ScheduledReset! with { Key = new(CodexResetsClient.Provider, "old"), Status = EventStatus.Recorded };
             var next = old with { Key = new(CodexResetsClient.Provider, "new") };
             var provider = new FakeProvider { History = (_, _, _) => ++calls == 1 ? Task.FromResult(new HistoryResult([old], true))
-                : throw new PartialHistoryException(new([next], false), new ApiException("后续分页失败")) };
+                : throw new PartialHistoryException(new([next], false), new ApiException("Later page failed")) };
             using var sync = new SyncController(provider, new MemoryCache(), new TestClock(Now));
             await sync.InitializeAsync(); await sync.RefreshAsync();
             Assert(sync.Current.History.Events.Count == 2 && sync.Current.HistoryHealth.LastError is not null && sync.Current.Status is not null);

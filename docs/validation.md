@@ -1,17 +1,18 @@
 # 当前版本验证记录
 
-日期：2026 年 10 月 2 日。版本：1.0.0-rc.1。状态：待用户最终检查；干净 Windows 与部分现场验证未完成，不宣称第一版最终验收通过。
+日期：2026 年 10 月 2 日。版本：1.0.0-rc.2。状态：待用户最终检查；干净 Windows 与部分现场验证未完成，不宣称第一版最终验收通过。
 
 ## 交付
 
-- [Windows x64 便携 ZIP](../artifacts/releases/CodexResetWidget-1.0.0-rc.1-win-x64.zip)。完整解压后运行 CodexResetWidget.exe。
-- [使用与升级说明](release-usage.txt)：包内 README.txt 已填入实际版本。
+- [Windows x64 便携 ZIP](../artifacts/releases/CodexResetWidget-1.0.0-rc.2-win-x64.zip)。完整解压后运行 CodexResetWidget.exe。
+- [使用与升级说明](release-usage.txt)：包内英文 README.txt 与中文 README.zh-CN.txt 已填入实际版本。
 - [第三方声明](third-party-notices.txt)：包内同时提供项目 LICENSE、运行时原始许可与第三方归属文件。
 - RELEASE.json 记录版本、SDK、运行时、数据格式版本、文件大小与 SHA256；ZIP 的整体 SHA256 另列于本文。
 
 候选包自带 Microsoft.NETCore.App 与 Microsoft.WindowsDesktop.App 10.0.12。发布目录无 PDB、用户设置、缓存和日志；安装目录无须可写。数据仍保存在 `%LocalAppData%/CodexResetWidget/`，设置与缓存格式保持版本 1。
 
-测试按功能重新分组后再次执行 Release 构建：0 警告、0 错误，原有 89 项检查全部保留并通过。当前分组见 [开发与测试](development.md)。发布候选包的二进制未因文档与测试目录整理而变更；其包内运行时、真实联网、升级及 13 项 WPF 场景结果来自该候选包的发布检查。
+当前候选包已执行完整 Release 构建与发布验证：0 警告、0 错误，110 项功能、13 项 WPF 场景、60 项桌面检查全部通过。新增双语资源、系统显示语言映射、菜单即时切换、设置兼容与旧缓存提示翻译检查。具体分组见 [开发与测试](development.md)。
+
 ## 已执行验证与校验值
 
 完整验证命令（可重新执行）：
@@ -20,18 +21,18 @@
 .\scripts\build.ps1 -Publish -RunUiChecks -RunDesktopChecks -RunLiveChecks -UpgradeDataDirectory artifacts/fixtures/schema-1-user-data
 ```
 
-- Release 编译：0 警告、0 错误；89 项业务／同步／设置／升级／日志测试通过。
-- 13 项 WPF 场景检查、46 项桌面检查通过。
-- 478 个包内文件在解压后及应用退出后逐一校验大小与 SHA256；版本、许可、自包含运行时与包内容检查通过。
+- Release 编译：0 警告、0 错误；110 项业务／同步／设置／升级／日志测试通过。
+- 13 项 WPF 场景检查、60 项桌面检查通过。
+- 479 个包内文件在解压后及应用退出后逐一校验大小与 SHA256；版本、许可、自包含运行时与包内容检查通过。
 - 从含中文与空格的目录启动，实际 RuntimeDirectory 指向该解压目录；解压目录运行前后的文件保持一致。
 - 正常数据通路获取 56 条历史，完整分页完成；刷新保留阅读对象和月份。
 - 从格式版本 1 的测试数据的副本升级后，compact=false、Light、宽 440、高 1020 得到恢复；缓存无读取警告。未使用或修改真实用户数据。
 
-[当前构建日志](../artifacts/releases/cleanup-build.txt) · [业务测试](../artifacts/releases/domain-tests.txt) · [WPF 报告](../artifacts/releases/ui-checks.json) · [桌面报告](../artifacts/releases/desktop-checks.json) · [发布包报告](../artifacts/releases/package-checks.json) · [真实数据报告](../artifacts/releases/live-checks.json) · [升级报告](../artifacts/releases/upgrade-checks.json)
+[当前构建日志](../artifacts/releases/language-menu-fix-build.txt) · [业务测试](../artifacts/releases/domain-tests.txt) · [WPF 报告](../artifacts/releases/ui-checks.json) · [桌面报告](../artifacts/releases/desktop-checks.json) · [发布包报告](../artifacts/releases/package-checks.json) · [真实数据报告](../artifacts/releases/live-checks.json) · [升级报告](../artifacts/releases/upgrade-checks.json)
 
-ZIP SHA256：`C2E4ED13A5F906B5AC91B0EDB468FC1BE519F73A373FD28E4059F0C4DF2762D3`。
+ZIP SHA256：`F6E8FEFF9B128287949495EB03A5D9E19B10580701B591B0E67F064923869E7B`。
 
-[独立校验文件](../artifacts/releases/CodexResetWidget-1.0.0-rc.1-win-x64.zip.sha256)。包体积约 72.7 MiB。
+[独立校验文件](../artifacts/releases/CodexResetWidget-1.0.0-rc.2-win-x64.zip.sha256)。包体积约 72.7 MiB。
 
 | 真实数据精简态 | 最新关于文案 |
 | --- | --- |
@@ -39,14 +40,20 @@ ZIP SHA256：`C2E4ED13A5F906B5AC91B0EDB468FC1BE519F73A373FD28E4059F0C4DF2762D3`�
 
 [长公告展开态检查截图](assets/expanded-long.png)。截图数据是检查当时的内容，不代表未来的最新公告。
 
-## 当前发布与数据行为
+菜单修复后的候选包重新通过 110 项功能、13 项 WPF 场景、60 项桌面及 479 个文件的发布校验。新增检查通过实际子菜单的弹出区域调用英语选项，覆盖从中文切换、关闭菜单、保存和重开后的勾选标记。真实数据与升级检查来自菜单修复前的国际化候选包；本次未改动数据或升级逻辑。
 
-1. 版本更新为 1.0.0-rc.1；关于窗口显示运行程序集版本，保留已确认的介绍文案与 GitHub 地址。
-2. 发布脚本从 EXE 读取版本，每次使用新的 staging 目录，避免旧 DLL 残留或已运行的旧预览影响发布；删除遗留的 --demo 检查参数。
-3. 增加解压包验证脚本：核对运行时、许可、版本、全部文件大小与哈希；从中文及空格路径启动 EXE；验证实际运行时来自解压目录，运行后应用目录内容不变。
-4. 验证正常数据通路的首次启动和 格式版本 1 的数据升级，测试目录与真实用户数据分开。旧版展开选择、主题、置顶与宽度得到保留。
-5. 日志每条消息限制长度；继续保留当前和上一份滚动文件，避免单个异常长消息突破容量控制。
-6. 同步需求文档中的默认精简、公告固定高度、分类名称、时区工具提示与移除演示入口等最终决定。
+[语言子菜单截图](assets/language-submenu.png)。
+
+## 当前发布与语言行为
+
+1. 支持英文与简体中文，界面、菜单、托盘、关于、提示及日期格式随语言切换。
+2. 首次启动跟随 Windows 用户显示语言。本机显示语言为中文，实测默认 System / zh-CN；繁体中文和其他语言映射通过注入文化及桌面检查验证，未修改用户实际显示语言。
+3. 菜单提供跟随系统、English 与简体中文，立即生效并保存；切换保留公告正文、阅读位置、日历选择及绝对目标时间。
+4. 缺少语言字段的格式版本 1 设置升级为 System，恢复已有模式、主题、位置和尺寸；缓存仍可读取。
+5. 英文根 README 链接 docs/README.zh-CN.md，英文布局 PNG／SVG 与现有中文设计图使用同一尺寸及图标，Logo 共用。
+6. 修复快速连续切换模式时读取上一帧高度的问题，展开高度按最新请求保存。
+
+[英文展开截图](assets/expanded-en-dark.png) · [中文展开截图](assets/expanded-zh-CN-dark.png)。两张截图使用同一公告与阅读位置。
 
 ## 验收覆盖
 
@@ -61,7 +68,7 @@ ZIP SHA256：`C2E4ED13A5F906B5AC91B0EDB468FC1BE519F73A373FD28E4059F0C4DF2762D3`�
 | 7. 常见缩放与小屏幕 | 本机单屏 150%；100%／200% 工作区模拟与位置策略通过，实际系统缩放切换及多屏待现场检查 |
 | 8. 离线缓存与损坏文件 | 同步及存储测试通过；格式版本 1 的缓存离线恢复通过 |
 | 9. 可点击的数据来源 | WPF 来源按钮与 URI 检查通过；本次未自动点击外链干扰浏览器 |
-| 10. 模式、键盘、设置与屏幕范围 | 46 项桌面检查覆盖模式恢复、键盘焦点、置顶、托盘、退出及位置策略；物理显示器断开待现场验证 |
+| 10. 模式、键盘、设置与屏幕范围 | 60 项桌面检查覆盖模式恢复、键盘焦点、置顶、托盘、退出及位置策略；物理显示器断开待现场验证 |
 | 11. 自包含启动与升级 | ZIP 解压启动、包内运行时加载、无安装目录写入和 格式版本 1 的数据升级通过；未安装 .NET 的干净 Windows 待验证 |
 | 12. 时区与夏令时 | 跨日、非整小时偏移、夏令时业务测试与注入时区桌面检查通过；本次未修改用户系统时区 |
 
@@ -80,6 +87,7 @@ ZIP SHA256：`C2E4ED13A5F906B5AC91B0EDB468FC1BE519F73A373FD28E4059F0C4DF2762D3`�
 - [ ] 退出旧版，将候选 ZIP 解压到新目录并直接运行。
 - [ ] 检查关于中的版本、文案、Logo 与 GitHub 链接。
 - [ ] 检查旧版模式、主题、位置、尺寸与置顶设置是否符合预期。
+- [ ] 检查默认系统语言、菜单切换、重启后的语言保持及双语布局。
 - [ ] 检查倒计时、公告翻阅、日历及长文滚动。
 - [ ] 确认托盘恢复、退出、重启后的设置保持。
 - [ ] 在未安装 .NET 的 Windows 11 x64 环境验证完整解压启动。

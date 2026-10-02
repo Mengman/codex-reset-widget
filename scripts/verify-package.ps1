@@ -3,7 +3,7 @@ param([Parameter(Mandatory)][string]$ArchivePath, [switch]$RunDesktopChecks, [sw
 $ErrorActionPreference = 'Stop'
 if ($UpgradeDataDirectory -and -not $RunLiveChecks) { throw 'Upgrade checks require -RunLiveChecks.' }
 $archive = (Resolve-Path -LiteralPath $ArchivePath).Path
-$verificationRoot = Join-Path ([IO.Path]::GetDirectoryName($archive)) ('验证解压 空格-' + [Guid]::NewGuid().ToString('N'))
+$verificationRoot = Join-Path ([IO.Path]::GetDirectoryName($archive)) ('Package check ' + [char]0x6D4B + [char]0x8BD5 + ' ' + [Guid]::NewGuid().ToString('N'))
 $packageRoot = Join-Path $verificationRoot 'app'
 New-Item -ItemType Directory -Path $verificationRoot | Out-Null
 $checks = [Collections.Generic.List[string]]::new()
@@ -41,7 +41,7 @@ try {
     Assert-Check (-not $config.runtimeOptions.framework -and -not $config.runtimeOptions.frameworks -and
         @($config.runtimeOptions.includedFrameworks).Count -eq 2) 'Runtime configuration includes both runtime frameworks'
     foreach ($file in @('CodexResetWidget.exe', 'CodexResetWidget.dll', 'coreclr.dll', 'hostfxr.dll', 'hostpolicy.dll',
-        'PresentationFramework.dll', 'README.txt', 'LICENSE', 'THIRD-PARTY-NOTICES.txt')) {
+        'PresentationFramework.dll', 'README.txt', 'README.zh-CN.txt', 'LICENSE', 'THIRD-PARTY-NOTICES.txt')) {
         Assert-Check (Test-Path -LiteralPath (Join-Path $packageRoot $file)) "Required release file: $file"
     }
     Assert-Check (((Get-Item -LiteralPath (Join-Path $packageRoot 'CodexResetWidget.exe')).VersionInfo.ProductVersion.Split('+')[0]) -eq $manifest.Version) 'EXE version matches release manifest'
@@ -69,7 +69,7 @@ try {
         Run-CheckProcess $liveReport @('--live-capture-dir', $directory, '--settings-dir', $dataDirectory, '--cache-dir', (Join-Path $dataDirectory 'cache'))
         $live = Get-Content -LiteralPath $liveReport -Raw | ConvertFrom-Json
         Assert-Check (-not $live.IsDemo -and $live.StatusLoaded -and $live.HistoryCount -gt 0 -and $live.ReadingPreservedAfterRefresh) 'Fresh extracted application uses real data and preserves reading after refresh'
-        Assert-Check ($live.Startup.Compact -and -not $live.Startup.Pinned -and $live.Startup.Theme -eq 'System') 'Fresh startup uses approved defaults'
+        Assert-Check ($live.Startup.Compact -and -not $live.Startup.Pinned -and $live.Startup.Theme -eq 'System' -and $live.Startup.Language -eq 'System') 'Fresh startup uses approved defaults'
         Assert-Check ([IO.Path]::GetFullPath($live.RuntimeDirectory).TrimEnd('\') -eq $packageRoot.TrimEnd('\')) 'Live startup uses the bundled runtime'
         Assert-Check (Test-Path -LiteralPath (Join-Path $dataDirectory 'cache/snapshot.json')) 'Live startup writes cache outside application directory'
         if ($UpgradeDataDirectory) {
@@ -85,6 +85,7 @@ try {
             Assert-Check ($upgrade.Startup.Compact -eq $expected.compact -and $upgrade.Startup.Pinned -eq $expected.pinned -and
                 $upgrade.Startup.Theme -eq $expected.theme -and [Math]::Abs($upgrade.Startup.Width - $expected.width) -lt 1) 'Schema-1 settings preserve saved mode pin theme and width on upgrade'
             Assert-Check ($null -eq $upgrade.CacheWarning -and $upgrade.StatusLoaded -and $upgrade.HistoryCount -gt 0) 'Schema-1 cache remains compatible during upgrade'
+            Assert-Check ($upgrade.Startup.Language -eq 'System') 'Older settings without language default to the OS display language'
         }
     }
     # Compare hashes again to catch writes into the install directory during application checks.

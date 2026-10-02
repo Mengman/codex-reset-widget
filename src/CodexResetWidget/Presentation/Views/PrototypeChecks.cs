@@ -71,7 +71,7 @@ public static class PrototypeChecks
                     Check(vm.Board.ShowsDate && window.FindName("CountdownCard") is System.Windows.Controls.Border, "Past announcement retains the board and its permanent account clarification");
                     vm.ToggleModeCommand.Execute(null); await Capture("dark-compact-past"); vm.ToggleModeCommand.Execute(null);
                 }
-                if (id == "missing") Check(vm.Board.Notice.Contains("待确认") && vm.Board.ShowsDate, "Missing announcement retains its expected date");
+                if (id == "missing") Check(vm.Board.Notice.Contains(L10n.Get("Notice.Withdrawn")) && vm.Board.ShowsDate, "Missing announcement retains its expected date");
             }
             window.ContentViewport.ScrollToEnd();
             await Capture("dark-expanded-calendar");
