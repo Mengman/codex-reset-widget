@@ -1,6 +1,6 @@
 # Codex Reset Widget 视觉与交互规范
 
-更新日期：2026 年 10 月 2 日。当前基线为用户已验收的 V4 布局及 M3 补充计时器 Logo。详细尺寸见 [UI 布局方案](m3-ui-revision-proposal.md)，实现验证见 [UI 验收记录](../milestones/m3-ui-v4-review.md) 和 [关于与 Logo 修改记录](../milestones/m3-about-logo-review.md)。
+更新日期：2026 年 10 月 2 日。当前界面采用独立小窗口和蓝白计时器 Logo。详细尺寸见 [UI 布局](ui-layout.md)，验证结果与待检查环境见 [验证记录](../validation.md)。
 
 ## 布局
 

@@ -25,15 +25,15 @@ if (Test-Path -LiteralPath $localFeed) { $restoreArguments += @('--source', $loc
 if ($LASTEXITCODE -ne 0) { throw 'Dependency restore failed.' }
 & $dotnetPath build CodexResetWidget.sln -c Release --no-restore
 if ($LASTEXITCODE -ne 0) { throw 'Release build failed.' }
-$milestoneRoot = Join-Path $projectRoot 'artifacts\milestones\m4'
-New-Item -ItemType Directory -Force $milestoneRoot | Out-Null
+$releaseRoot = Join-Path $projectRoot 'artifacts\releases'
+New-Item -ItemType Directory -Force $releaseRoot | Out-Null
 & $dotnetPath tests\CodexResetWidget.Tests\bin\Release\net10.0\CodexResetWidget.Tests.dll |
-    Tee-Object -FilePath (Join-Path $milestoneRoot 'domain-tests.txt')
+    Tee-Object -FilePath (Join-Path $releaseRoot 'domain-tests.txt')
 if ($LASTEXITCODE -ne 0) { throw 'Domain tests failed.' }
 if (-not ($Publish -or $RunUiChecks -or $RunDesktopChecks -or $RunLiveChecks)) { return }
 # A fresh staging directory prevents stale binaries or a running earlier preview from affecting the ZIP.
 $buildId = [Guid]::NewGuid().ToString('N')
-$portableDirectory = Join-Path $milestoneRoot ('publish-' + $buildId)
+$portableDirectory = Join-Path $releaseRoot ('publish-' + $buildId)
 & $dotnetPath restore src\CodexResetWidget\CodexResetWidget.csproj -r win-x64 -p:SelfContained=true @restoreArguments
 if ($LASTEXITCODE -ne 0) { throw 'Runtime restore failed.' }
 & $dotnetPath publish src\CodexResetWidget\CodexResetWidget.csproj -c Release -r win-x64 --self-contained true -o $portableDirectory --no-restore -p:DebugType=none -p:DebugSymbols=false
@@ -63,7 +63,7 @@ $fileManifest = @(Get-ChildItem -LiteralPath $portableDirectory -Recurse -File |
     Frameworks = @($runtimeManifest.runtimeOptions.includedFrameworks); SettingsSchema = 1; CacheSchema = 1;
     Files = $fileManifest } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $portableDirectory 'RELEASE.json') -Encoding utf8
 if ($RunUiChecks) {
-    $captureDirectory = Join-Path $milestoneRoot ('ui-' + $buildId)
+    $captureDirectory = Join-Path $releaseRoot ('ui-' + $buildId)
     $checkProcess = Start-Process -FilePath (Join-Path $portableDirectory 'CodexResetWidget.exe') -WindowStyle Hidden -PassThru -ArgumentList @('--capture-dir', ('"' + $captureDirectory + '"'))
     if (-not $checkProcess.WaitForExit(45000)) { $checkProcess.Kill(); throw 'WPF checks timed out.' }
     $reportPath = Join-Path $captureDirectory 'ui-checks.json'
@@ -72,7 +72,7 @@ if ($RunUiChecks) {
     if (-not $report.Passed -or $checkProcess.ExitCode -ne 0) { throw "WPF checks failed. See $reportPath" }
     Write-Output "WPF checks passed: $($report.Checks.Count). Captures: $captureDirectory"
 }
-$archivePath = Join-Path $milestoneRoot ('CodexResetWidget-' + $version + '-win-x64.zip')
+$archivePath = Join-Path $releaseRoot ('CodexResetWidget-' + $version + '-win-x64.zip')
 Compress-Archive -Path (Join-Path $portableDirectory '*') -DestinationPath $archivePath -Force
 & (Join-Path $PSScriptRoot 'verify-package.ps1') -ArchivePath $archivePath -RunDesktopChecks:$RunDesktopChecks -RunLiveChecks:$RunLiveChecks -UpgradeDataDirectory $UpgradeDataDirectory
 if (-not $?) { throw 'Package verification failed.' }

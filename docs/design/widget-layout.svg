@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1000" viewBox="0 0 1320 1000">
   <rect width="1320" height="1000" fill="#28394e" />
-  <text x="28" y="40" style="font-size:25px;font-weight:600;fill:#f3f3f3">Codex Reset · UI 修订稿 V4</text>
+  <text x="28" y="40" style="font-size:25px;font-weight:600;fill:#f3f3f3">Codex Reset · 当前界面布局</text>
   <text x="28" y="65" class="muted" style=";fill:#adb3bb">精简只显示倒计时 · 展开顺序：倒计时 → 公告 → 日历 · 示例数据</text>
   <text x="28" y="99" class="heading" style=";fill:#f3f3f3">深色 · 精简 400 × 292</text>
   <g transform="translate(28 114)" color="#f3f3f3" style="--surface:#202124;--card:#2b2d30;--border:#45474b;--status:#173a4c;--accent:#60cdff">
@@ -321,7 +321,7 @@
       </g>
     </g>
   </g>
-  <text x="28" y="474" class="heading" style=";fill:#f3f3f3">这次调整的重点</text>
+  <text x="28" y="474" class="heading" style=";fill:#f3f3f3">布局要点</text>
   <text x="28" y="510" style=";fill:#f3f3f3">01　大数字只表达剩余时长，说明紧贴其下。</text>
   <text x="28" y="548" style=";fill:#f3f3f3">02　预计日期有独立标签，不与倒计时挤在同一行。</text>
   <text x="28" y="586" style=";fill:#f3f3f3">03　重置类型与额度提示同一行，缩减一行高度。</text>

@@ -83,8 +83,8 @@ try {
             Run-CheckProcess $upgradeReport @('--live-capture-dir', $directory, '--settings-dir', $upgradeData, '--cache-dir', (Join-Path $upgradeData 'cache'))
             $upgrade = Get-Content -LiteralPath $upgradeReport -Raw | ConvertFrom-Json
             Assert-Check ($upgrade.Startup.Compact -eq $expected.compact -and $upgrade.Startup.Pinned -eq $expected.pinned -and
-                $upgrade.Startup.Theme -eq $expected.theme -and [Math]::Abs($upgrade.Startup.Width - $expected.width) -lt 1) 'M3 settings preserve saved mode pin theme and width on upgrade'
-            Assert-Check ($null -eq $upgrade.CacheWarning -and $upgrade.StatusLoaded -and $upgrade.HistoryCount -gt 0) 'M3 cache remains compatible during upgrade'
+                $upgrade.Startup.Theme -eq $expected.theme -and [Math]::Abs($upgrade.Startup.Width - $expected.width) -lt 1) 'Schema-1 settings preserve saved mode pin theme and width on upgrade'
+            Assert-Check ($null -eq $upgrade.CacheWarning -and $upgrade.StatusLoaded -and $upgrade.HistoryCount -gt 0) 'Schema-1 cache remains compatible during upgrade'
         }
     }
     # Compare hashes again to catch writes into the install directory during application checks.

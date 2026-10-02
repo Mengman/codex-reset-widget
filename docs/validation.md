@@ -1,22 +1,23 @@
-# M4 发布候选版验收
+# 当前版本验证记录
 
 日期：2026 年 10 月 2 日。版本：1.0.0-rc.1。状态：待用户最终检查；干净 Windows 与部分现场验证未完成，不宣称第一版最终验收通过。
 
 ## 交付
 
-- [Windows x64 便携 ZIP](../../artifacts/milestones/m4/CodexResetWidget-1.0.0-rc.1-win-x64.zip)。完整解压后运行 CodexResetWidget.exe。
-- [使用与升级说明](../release-usage.txt)：包内 README.txt 已填入实际版本。
-- [第三方声明](../third-party-notices.txt)：包内同时提供项目 LICENSE、运行时原始许可与第三方归属文件。
+- [Windows x64 便携 ZIP](../artifacts/releases/CodexResetWidget-1.0.0-rc.1-win-x64.zip)。完整解压后运行 CodexResetWidget.exe。
+- [使用与升级说明](release-usage.txt)：包内 README.txt 已填入实际版本。
+- [第三方声明](third-party-notices.txt)：包内同时提供项目 LICENSE、运行时原始许可与第三方归属文件。
 - RELEASE.json 记录版本、SDK、运行时、数据格式版本、文件大小与 SHA256；ZIP 的整体 SHA256 另列于本文。
 
 候选包自带 Microsoft.NETCore.App 与 Microsoft.WindowsDesktop.App 10.0.12。发布目录无 PDB、用户设置、缓存和日志；安装目录无须可写。数据仍保存在 `%LocalAppData%/CodexResetWidget/`，设置与缓存格式保持版本 1。
 
+测试按功能重新分组后再次执行 Release 构建：0 警告、0 错误，原有 89 项检查全部保留并通过。当前分组见 [开发与测试](development.md)。发布候选包的二进制未因文档与测试目录整理而变更；其包内运行时、真实联网、升级及 13 项 WPF 场景结果来自该候选包的发布检查。
 ## 已执行验证与校验值
 
-完整命令：
+完整验证命令（可重新执行）：
 
 ```powershell
-.\scripts\build.ps1 -Publish -RunUiChecks -RunDesktopChecks -RunLiveChecks -UpgradeDataDirectory artifacts/milestones/m3/native-state
+.\scripts\build.ps1 -Publish -RunUiChecks -RunDesktopChecks -RunLiveChecks -UpgradeDataDirectory artifacts/fixtures/schema-1-user-data
 ```
 
 - Release 编译：0 警告、0 错误；89 项业务／同步／设置／升级／日志测试通过。
@@ -24,26 +25,26 @@
 - 478 个包内文件在解压后及应用退出后逐一校验大小与 SHA256；版本、许可、自包含运行时与包内容检查通过。
 - 从含中文与空格的目录启动，实际 RuntimeDirectory 指向该解压目录；解压目录运行前后的文件保持一致。
 - 正常数据通路获取 56 条历史，完整分页完成；刷新保留阅读对象和月份。
-- 从 M3 测试数据的副本升级后，compact=false、Light、宽 440、高 1020 得到恢复；缓存无读取警告。未使用或修改真实用户数据。
+- 从格式版本 1 的测试数据的副本升级后，compact=false、Light、宽 440、高 1020 得到恢复；缓存无读取警告。未使用或修改真实用户数据。
 
-[构建日志](../../artifacts/milestones/m4/final-build.txt) · [业务测试](../../artifacts/milestones/m4/domain-tests.txt) · [WPF 报告](../../artifacts/milestones/m4/ui-checks.json) · [桌面报告](../../artifacts/milestones/m4/desktop-checks.json) · [发布包报告](../../artifacts/milestones/m4/package-checks.json) · [真实数据报告](../../artifacts/milestones/m4/live-checks.json) · [升级报告](../../artifacts/milestones/m4/upgrade-checks.json)
+[当前构建日志](../artifacts/releases/cleanup-build.txt) · [业务测试](../artifacts/releases/domain-tests.txt) · [WPF 报告](../artifacts/releases/ui-checks.json) · [桌面报告](../artifacts/releases/desktop-checks.json) · [发布包报告](../artifacts/releases/package-checks.json) · [真实数据报告](../artifacts/releases/live-checks.json) · [升级报告](../artifacts/releases/upgrade-checks.json)
 
 ZIP SHA256：`C2E4ED13A5F906B5AC91B0EDB468FC1BE519F73A373FD28E4059F0C4DF2762D3`。
 
-[独立校验文件](../../artifacts/milestones/m4/CodexResetWidget-1.0.0-rc.1-win-x64.zip.sha256)。包体积约 72.7 MiB。
+[独立校验文件](../artifacts/releases/CodexResetWidget-1.0.0-rc.1-win-x64.zip.sha256)。包体积约 72.7 MiB。
 
 | 真实数据精简态 | 最新关于文案 |
 | --- | --- |
-| ![真实数据精简态](m4-assets/live-dark.png) | ![关于](m4-assets/about-light.png) |
+| ![真实数据精简态](assets/compact-dark.png) | ![关于](assets/about-light.png) |
 
-[长公告展开态检查截图](m4-assets/desktop-expanded-long.png)。截图数据是检查当时的内容，不代表未来的最新公告。
+[长公告展开态检查截图](assets/expanded-long.png)。截图数据是检查当时的内容，不代表未来的最新公告。
 
-## 本阶段修改
+## 当前发布与数据行为
 
 1. 版本更新为 1.0.0-rc.1；关于窗口显示运行程序集版本，保留已确认的介绍文案与 GitHub 地址。
 2. 发布脚本从 EXE 读取版本，每次使用新的 staging 目录，避免旧 DLL 残留或已运行的旧预览影响发布；删除遗留的 --demo 检查参数。
 3. 增加解压包验证脚本：核对运行时、许可、版本、全部文件大小与哈希；从中文及空格路径启动 EXE；验证实际运行时来自解压目录，运行后应用目录内容不变。
-4. 验证正常数据通路的首次启动和 M3 数据升级，测试目录与真实用户数据分开。旧版展开选择、主题、置顶与宽度得到保留。
+4. 验证正常数据通路的首次启动和 格式版本 1 的数据升级，测试目录与真实用户数据分开。旧版展开选择、主题、置顶与宽度得到保留。
 5. 日志每条消息限制长度；继续保留当前和上一份滚动文件，避免单个异常长消息突破容量控制。
 6. 同步需求文档中的默认精简、公告固定高度、分类名称、时区工具提示与移除演示入口等最终决定。
 
@@ -56,12 +57,12 @@ ZIP SHA256：`C2E4ED13A5F906B5AC91B0EDB468FC1BE519F73A373FD28E4059F0C4DF2762D3`�
 | 3. 到点后日期回顾，无个人成功暗示 | 业务与 WPF 两种模式检查通过；旧缓存离线升级跨目标测试通过 |
 | 4. 公告原文与事件对应 | 真实数据检查记录同一公告 ID、时间与来源；缺少作者证据不伪造归属 |
 | 5. 日历边界与阅读独立 | 跨月、闰年、跨时区、多事件测试及六行月历桌面检查通过 |
-| 6. 深浅主题信息与阅读保持 | WPF 和桌面检查、真实数据刷新阅读保持通过；真实系统主题通知沿用 M3 待现场检查项 |
+| 6. 深浅主题信息与阅读保持 | WPF 和桌面检查、真实数据刷新阅读保持通过；真实系统主题通知待现场检查 |
 | 7. 常见缩放与小屏幕 | 本机单屏 150%；100%／200% 工作区模拟与位置策略通过，实际系统缩放切换及多屏待现场检查 |
-| 8. 离线缓存与损坏文件 | 同步及存储测试通过；M3 格式缓存离线恢复通过 |
+| 8. 离线缓存与损坏文件 | 同步及存储测试通过；格式版本 1 的缓存离线恢复通过 |
 | 9. 可点击的数据来源 | WPF 来源按钮与 URI 检查通过；本次未自动点击外链干扰浏览器 |
 | 10. 模式、键盘、设置与屏幕范围 | 46 项桌面检查覆盖模式恢复、键盘焦点、置顶、托盘、退出及位置策略；物理显示器断开待现场验证 |
-| 11. 自包含启动与升级 | ZIP 解压启动、包内运行时加载、无安装目录写入和 M3 数据升级通过；未安装 .NET 的干净 Windows 待验证 |
+| 11. 自包含启动与升级 | ZIP 解压启动、包内运行时加载、无安装目录写入和 格式版本 1 的数据升级通过；未安装 .NET 的干净 Windows 待验证 |
 | 12. 时区与夏令时 | 跨日、非整小时偏移、夏令时业务测试与注入时区桌面检查通过；本次未修改用户系统时区 |
 
 100%／200% 工作区模拟不是 Windows 实际缩放变更。截图由 WPF 导出，Mica 使用实色回退，原生边框及系统合成效果不纳入像素验收。
@@ -83,4 +84,4 @@ ZIP SHA256：`C2E4ED13A5F906B5AC91B0EDB468FC1BE519F73A373FD28E4059F0C4DF2762D3`�
 - [ ] 确认托盘恢复、退出、重启后的设置保持。
 - [ ] 在未安装 .NET 的 Windows 11 x64 环境验证完整解压启动。
 
-**暂停点：交付 M4 候选包，等待用户最终检查；本阶段不增加自启动、通知或其他后续功能。**
+当前为发布候选版，等待用户最终检查与未验证环境的现场验证。自启动、通知等增强不属于当前版本。
