@@ -1,8 +1,12 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interop;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using CodexResetWidget.Domain;
+using CodexResetWidget.Infrastructure.Storage;
 using CodexResetWidget.Platform;
 using CodexResetWidget.Presentation.ViewModels;
 
@@ -13,60 +17,168 @@ public partial class MainWindow : Window
     public MainViewModel Model { get; }
     public ThemeService Theme { get; }
     public ScrollViewer ContentViewport => ContentScroll;
+    public bool IsTicking => _timer.IsEnabled;
+    public bool HasTray => _tray?.IsVisible == true;
+    public bool BackdropEnabled { get; private set; }
     private readonly DispatcherTimer _timer;
+    private readonly DispatcherTimer _saveTimer;
+    private readonly SettingsStore? _store;
+    private readonly WindowPlacementService _placement;
+    private readonly bool _enableBackdrop;
+    private DesktopSettings _settings;
+    private TrayService? _tray;
+    private bool _restoring = true;
+    private bool _exiting;
     private double _expandedHeight;
     private double _expandedScroll;
     private int _ticks;
 
-    public MainWindow(MainViewModel model, ThemeService theme)
+    public MainWindow(MainViewModel model, ThemeService theme, SettingsStore? store = null,
+        DesktopSettings? settings = null, bool enableTray = false, bool enableBackdrop = false)
     {
-        Model = model; Theme = theme;
+        Model = model; Theme = theme; _store = store; _settings = settings ?? new(); _enableBackdrop = enableBackdrop;
         InitializeComponent(); DataContext = model;
-        Height = Math.Min(1020, SystemParameters.WorkArea.Height - 28);
-        _expandedHeight = Height;
-        Width = Math.Min(440, SystemParameters.WorkArea.Width - 20);
+        _placement = new(this);
+        Width = _settings.Width; _expandedHeight = _settings.ExpandedHeight;
+        Height = model.IsCompact ? 400 : _expandedHeight;
+        if (_settings.PhysicalLeft is not null) WindowStartupLocation = WindowStartupLocation.Manual;
         _timer = new DispatcherTimer(TimeSpan.FromSeconds(1), DispatcherPriority.Background, (_, _) =>
         {
             Model.Tick();
             if (++_ticks % 15 == 0) Model.RefreshSystemTimeZone();
         }, Dispatcher);
+        _saveTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(500), DispatcherPriority.Background, (_, _) =>
+        {
+            _saveTimer?.Stop(); SaveSettings();
+        }, Dispatcher);
+        SourceInitialized += (_, _) =>
+        {
+            _placement.Restore(_settings);
+            RefreshBackdrop();
+            if (enableTray)
+                _tray = new TrayService((System.Windows.Media.ImageSource)FindResource("AppLogo"), ShowFromTray,
+                    HideToTray, () => Model.RefreshCommand.Execute(null), ExitApplication);
+            UpdateNotice();
+        };
+        Loaded += (_, _) => { _restoring = false; _placement.EnsureVisible(); UpdateTimer(); };
         Model.ModeChanged += ModeChanged;
-        StateChanged += (_, _) => { if (WindowState == WindowState.Minimized) _timer.Stop(); else { Model.RefreshSystemTimeZone(); Model.Tick(); _timer.Start(); } };
-        Activated += (_, _) => { Model.RefreshSystemTimeZone(); Model.Tick(); };
+        Model.PropertyChanged += ModelChanged;
+        Theme.Changed += ThemeChanged;
+        StateChanged += (_, _) => { UpdateTimer(); if (WindowState == WindowState.Normal) _placement.EnsureVisible(); };
+        IsVisibleChanged += (_, _) => UpdateTimer();
+        Activated += (_, _) => RefreshTime();
+        LocationChanged += (_, _) => ScheduleSave();
+        SizeChanged += (_, _) =>
+        {
+            if (!_restoring && !Model.IsCompact && WindowState == WindowState.Normal) _expandedHeight = ActualHeight;
+            ScheduleSave();
+        };
+        DpiChanged += (_, _) => Dispatcher.BeginInvoke(_placement.EnsureVisible, DispatcherPriority.Loaded);
         SystemEvents.TimeChanged += TimeChanged;
         SystemEvents.PowerModeChanged += PowerChanged;
         SystemEvents.UserPreferenceChanged += PreferenceChanged;
+        SystemEvents.DisplaySettingsChanged += DisplayChanged;
+        Closing += WindowClosing;
         Closed += (_, _) =>
         {
-            _timer.Stop(); Model.ModeChanged -= ModeChanged;
+            _timer.Stop(); _saveTimer.Stop(); _tray?.Dispose();
+            Model.ModeChanged -= ModeChanged; Model.PropertyChanged -= ModelChanged; Theme.Changed -= ThemeChanged;
             SystemEvents.TimeChanged -= TimeChanged; SystemEvents.PowerModeChanged -= PowerChanged;
-            SystemEvents.UserPreferenceChanged -= PreferenceChanged; Model.Dispose();
+            SystemEvents.UserPreferenceChanged -= PreferenceChanged; SystemEvents.DisplaySettingsChanged -= DisplayChanged;
+            Model.Dispose();
         };
     }
 
+    private void UpdateTimer()
+    {
+        if (!IsVisible || WindowState == WindowState.Minimized) _timer.Stop();
+        else { RefreshTime(); _timer.Start(); }
+    }
+    private void RefreshTime() { Model.RefreshSystemTimeZone(); Model.Tick(); }
     private void ModeChanged(object? sender, EventArgs e)
     {
         if (Model.IsCompact)
         {
             _expandedHeight = ActualHeight; _expandedScroll = ContentScroll.VerticalOffset;
-            Height = Math.Min(Model.ToolsOpen ? 380 : 330, SystemParameters.WorkArea.Height - 28);
-            ContentScroll.ScrollToTop();
+            Height = Model.ToolsOpen ? 450 : 400; ContentScroll.ScrollToTop();
         }
         else
         {
-            Height = Math.Min(_expandedHeight, SystemParameters.WorkArea.Height - 28);
+            Height = _expandedHeight;
             Dispatcher.BeginInvoke(() => ContentScroll.ScrollToVerticalOffset(_expandedScroll), DispatcherPriority.Loaded);
         }
-        Top = Math.Clamp(Top, SystemParameters.WorkArea.Top, Math.Max(SystemParameters.WorkArea.Top, SystemParameters.WorkArea.Bottom - Height));
+        _placement.EnsureVisible(); ScheduleSave();
     }
-    private void TimeChanged(object? sender, EventArgs e) => DispatchTimeUpdate();
-    private void PowerChanged(object sender, PowerModeChangedEventArgs e) { if (e.Mode == PowerModes.Resume) { DispatchTimeUpdate(); Model.RefreshAfterResume(); } }
-    private void DispatchTimeUpdate() => Dispatcher.BeginInvoke(() => { Model.RefreshSystemTimeZone(); Model.Tick(); });
-    private void PreferenceChanged(object sender, UserPreferenceChangedEventArgs e) => Dispatcher.BeginInvoke(() => { if (Theme.Mode == AppThemeMode.System) Theme.Apply(AppThemeMode.System); Model.RefreshSystemTimeZone(); });
+    private void ModelChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(MainViewModel.IsPinned) or nameof(MainViewModel.IsCompact)) ScheduleSave();
+        if (e.PropertyName == nameof(MainViewModel.ToolsOpen) && Model.IsCompact)
+        { Height = Model.ToolsOpen ? 450 : 400; _placement.EnsureVisible(); }
+    }
+    private void ScheduleSave()
+    {
+        if (_restoring || !IsLoaded || _exiting) return;
+        if (WindowState == WindowState.Normal) _settings = CaptureSettings();
+        _saveTimer.Stop(); _saveTimer.Start();
+    }
+    public DesktopSettings CaptureSettings()
+    {
+        var bounds = _placement.CurrentBounds();
+        return _settings with { Width = Math.Clamp(ActualWidth, 370, 4000), ExpandedHeight = Math.Clamp(_expandedHeight, 260, 5000),
+            Compact = Model.IsCompact, Pinned = Model.IsPinned, Theme = Theme.Mode.ToString(), Monitor = _placement.CurrentMonitor(),
+            PhysicalLeft = bounds.X, PhysicalTop = bounds.Y };
+    }
+    public void SaveSettings()
+    {
+        if (_store is null || !IsLoaded) return;
+        _settings = WindowState == WindowState.Normal ? CaptureSettings() : _settings with
+            { Compact = Model.IsCompact, Pinned = Model.IsPinned, Theme = Theme.Mode.ToString() };
+        _store.Save(_settings); UpdateNotice();
+    }
+    private void UpdateNotice() => DesktopNotice.Text = _store?.Warning
+        ?? (HasTray && !_settings.TrayHintShown ? "关闭窗口会收进托盘；从托盘菜单选择“退出”。" : "");
+    public void HideToTray()
+    {
+        if (_tray is null) { WindowState = WindowState.Minimized; return; }
+        SaveSettings();
+        if (!_settings.TrayHintShown)
+        {
+            _tray.ExplainClose(); _settings = _settings with { TrayHintShown = true };
+            _store?.Save(_settings); UpdateNotice();
+        }
+        Hide(); ShowInTaskbar = false;
+    }
+    public void ShowFromTray()
+    {
+        ShowInTaskbar = true; Show(); WindowState = WindowState.Normal;
+        _placement.EnsureVisible(); Activate(); RefreshTime(); UpdateTimer();
+    }
+    private void WindowClosing(object? sender, CancelEventArgs e)
+    {
+        if (!_exiting && _tray is not null) { e.Cancel = true; HideToTray(); }
+        else SaveSettings();
+    }
+    public void PrepareForExit() { SaveSettings(); _exiting = true; }
+    public void ExitApplication() { PrepareForExit(); Close(); System.Windows.Application.Current.Shutdown(); }
+    public void RefreshBackdrop() => BackdropEnabled = _enableBackdrop && WindowBackdrop.Apply(this, Theme);
+    public void EnsureOnScreen() => _placement.EnsureVisible();
+    private void ThemeChanged(object? sender, EventArgs e) { RefreshBackdrop(); ScheduleSave(); }
+    private void TimeChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(RefreshTime);
+    private void PowerChanged(object sender, PowerModeChangedEventArgs e)
+    { if (e.Mode == PowerModes.Resume) Dispatcher.BeginInvoke(() => { RefreshTime(); Model.RefreshAfterResume(); }); }
+    private void PreferenceChanged(object sender, UserPreferenceChangedEventArgs e) => Dispatcher.BeginInvoke(() =>
+    { Theme.Apply(Theme.Mode); RefreshTime(); });
+    private void DisplayChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(_placement.EnsureVisible);
     private void ShowMenu(object sender, RoutedEventArgs e) { MoreButton.ContextMenu.PlacementTarget = MoreButton; MoreButton.ContextMenu.IsOpen = true; }
     private void SelectTheme(object sender, RoutedEventArgs e) { if (sender is MenuItem { Tag: string tag } && Enum.TryParse<AppThemeMode>(tag, out var mode)) Theme.Apply(mode); }
     private void ToggleTools(object sender, RoutedEventArgs e) { if (Model.IsDemo) Model.ToolsOpen = !Model.ToolsOpen; }
-    private void OpenDemo(object sender, RoutedEventArgs e) => Process.Start(new ProcessStartInfo(Environment.ProcessPath!) { Arguments = "--demo", UseShellExecute = true });
+    private void OpenDemo(object sender, RoutedEventArgs e)
+    {
+        var start = new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = true };
+        if (string.Equals(System.IO.Path.GetFileNameWithoutExtension(Environment.ProcessPath), "dotnet", StringComparison.OrdinalIgnoreCase))
+            start.ArgumentList.Add(typeof(App).Assembly.Location);
+        start.ArgumentList.Add("--demo"); Process.Start(start);
+    }
     private void OpenAnnouncement(object sender, RoutedEventArgs e)
     {
         if (Model.Announcement.CurrentEvent?.SourceUrl is { Scheme: "https" or "http" } url)
@@ -75,7 +187,8 @@ public partial class MainWindow : Window
     private async void RunPrototypeChecks(object sender, RoutedEventArgs e) => await PrototypeChecks.RunAsync(this,
         System.IO.Path.GetFullPath(System.IO.Path.Combine(AppContext.BaseDirectory, "..", "captures")));
     private void MinimizeWindow(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
-    private void ExitWindow(object sender, RoutedEventArgs e) => Close();
+    private void HideWindow(object sender, RoutedEventArgs e) => HideToTray();
+    private void CloseWindow(object sender, RoutedEventArgs e) => Close();
+    private void ExitWindow(object sender, RoutedEventArgs e) => ExitApplication();
     private void OpenSource(object sender, RoutedEventArgs e) => Process.Start(new ProcessStartInfo("https://codex-resets.com/") { UseShellExecute = true });
 }
-

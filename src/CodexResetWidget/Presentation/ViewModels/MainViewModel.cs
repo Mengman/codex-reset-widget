@@ -66,6 +66,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public ICommand NextMonthCommand { get; }
     public ICommand TodayCommand { get; }
     public ICommand ReturnLatestCommand { get; }
+    public ICommand OlderAnnouncementCommand { get; }
+    public ICommand NewerAnnouncementCommand { get; }
     public ICommand ToggleToolsCommand { get; }
     public event EventHandler? ModeChanged;
 
@@ -93,6 +95,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         });
         SelectEventCommand = new DelegateCommand(p => { if (p is EventRowViewModel row) SelectEvent(row.Event); });
         ReturnLatestCommand = new DelegateCommand(_ => ShowLatest());
+        OlderAnnouncementCommand = new DelegateCommand(_ => NavigateAnnouncement(1), _ => CanNavigateAnnouncement(1));
+        NewerAnnouncementCommand = new DelegateCommand(_ => NavigateAnnouncement(-1), _ => CanNavigateAnnouncement(-1));
         _zones.ZoneChanged += OnZoneChanged;
         ShowLatest(); RebuildCalendar(); Tick();
     }
@@ -123,6 +127,22 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         Announcement.Show(reset, false, _zones.CurrentZone, _zones.FollowsSystem);
     }
     private void SelectEvent(ResetEvent reset) => Announcement.Show(reset, true, _zones.CurrentZone, _zones.FollowsSystem);
+    private IReadOnlyList<ResetEvent> ReadingEvents() => new[] { _snapshot.Status?.ScheduledReset, _snapshot.Pending?.LastKnownEvent, _snapshot.Status?.LatestReset }
+        .OfType<ResetEvent>().Concat(_snapshot.History.Events).DistinctBy(e => e.Key).OrderByDescending(e => e.AnnouncedAtUtc).ToArray();
+    private bool CanNavigateAnnouncement(int delta)
+    {
+        var events = ReadingEvents();
+        var index = events.ToList().FindIndex(e => e.Key == Announcement.CurrentEvent?.Key);
+        return index >= 0 && index + delta >= 0 && index + delta < events.Count;
+    }
+    private void NavigateAnnouncement(int delta)
+    {
+        if (!CanNavigateAnnouncement(delta)) return;
+        var events = ReadingEvents();
+        var index = events.ToList().FindIndex(e => e.Key == Announcement.CurrentEvent?.Key);
+        SelectEvent(events[index + delta]);
+    }
+    public void RestoreDesktop(bool compact, bool pinned) { IsCompact = compact; IsPinned = pinned; }
     private void MoveMonth(int delta) { Calendar.SetMonth(Calendar.VisibleMonth.AddMonths(delta)); RebuildCalendar(); }
     private void RebuildCalendar() => Calendar.Apply(_calendar.BuildMonth(_snapshot, Calendar.VisibleMonth, _zones.CurrentZone, _clock.UtcNow), _snapshot, _zones.CurrentZone);
     private void OnZoneChanged(object? sender, EventArgs e)

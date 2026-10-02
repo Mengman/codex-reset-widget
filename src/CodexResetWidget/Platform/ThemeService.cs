@@ -8,12 +8,16 @@ public sealed class ThemeService
 {
     public AppThemeMode Mode { get; private set; } = AppThemeMode.System;
     public bool IsDark { get; private set; }
-    public void Apply(AppThemeMode mode)
+    public bool IsHighContrast { get; private set; }
+    public event EventHandler? Changed;
+    public void Apply(AppThemeMode mode, bool? highContrastOverride = null)
     {
         Mode = mode;
+        IsHighContrast = highContrastOverride ?? SystemParameters.HighContrast;
         IsDark = mode == AppThemeMode.Dark || mode == AppThemeMode.System && ReadSystemDark();
-        var dictionary = new ResourceDictionary { Source = new Uri($"Resources/{(IsDark ? "Dark" : "Light")}.xaml", UriKind.Relative) };
+        var dictionary = new ResourceDictionary { Source = new Uri($"Resources/{(IsHighContrast ? "HighContrast" : IsDark ? "Dark" : "Light")}.xaml", UriKind.Relative) };
         System.Windows.Application.Current.Resources.MergedDictionaries[0] = dictionary;
+        Changed?.Invoke(this, EventArgs.Empty);
     }
     private static bool ReadSystemDark()
     {

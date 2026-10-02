@@ -20,7 +20,8 @@ public partial class App : System.Windows.Application
         var theme = new ThemeService();
         theme.Apply(AppThemeMode.System);
         var captureIndex = Array.IndexOf(e.Args, "--capture-dir");
-        var demo = e.Args.Contains("--demo") || captureIndex >= 0;
+        var desktopIndex = Array.IndexOf(e.Args, "--desktop-check-dir");
+        var demo = e.Args.Contains("--demo") || captureIndex >= 0 || desktopIndex >= 0;
         var clock = new SystemClock();
         var http = demo ? null : new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
         var cacheRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CodexResetWidget", "cache");
@@ -29,7 +30,16 @@ public partial class App : System.Windows.Application
         var log = new DiagnosticLog(Path.Combine(Path.GetDirectoryName(cacheRoot)!, "logs"));
         var sync = http is null ? null : new SyncController(new CodexResetsClient(http), new JsonCacheStore(cacheRoot), clock, log.Write);
         var model = new MainViewModel(clock, new SystemTimeZoneService(), sync);
-        var window = new MainWindow(model, theme);
+        var settingsArg = Array.IndexOf(e.Args, "--settings-dir");
+        var settingsRoot = settingsArg >= 0 && settingsArg + 1 < e.Args.Length ? Path.GetFullPath(e.Args[settingsArg + 1])
+            : desktopIndex >= 0 && desktopIndex + 1 < e.Args.Length ? Path.Combine(Path.GetFullPath(e.Args[desktopIndex + 1]), "isolated-settings")
+            : Path.GetDirectoryName(cacheRoot)!;
+        var store = !demo || desktopIndex >= 0 || settingsArg >= 0 ? new SettingsStore(settingsRoot) : null;
+        var settings = store?.Load() ?? new CodexResetWidget.Domain.DesktopSettings();
+        theme.Apply(Enum.Parse<AppThemeMode>(settings.Theme));
+        model.RestoreDesktop(settings.Compact, settings.Pinned);
+        var window = new MainWindow(model, theme, store, settings, enableTray: !demo || desktopIndex >= 0,
+            enableBackdrop: captureIndex < 0 && desktopIndex < 0);
         MainWindow = window;
         // Demo and capture modes never construct the production provider or cache.
         if (captureIndex >= 0 && captureIndex + 1 < e.Args.Length)
@@ -37,6 +47,8 @@ public partial class App : System.Windows.Application
             var directory = Path.GetFullPath(e.Args[captureIndex + 1]);
             window.Loaded += async (_, _) => await PrototypeChecks.RunAsync(window, directory);
         }
+        if (desktopIndex >= 0 && desktopIndex + 1 < e.Args.Length)
+            window.Loaded += async (_, _) => await DesktopChecks.RunAsync(window, store!, Path.GetFullPath(e.Args[desktopIndex + 1]));
         if (sync is not null)
         {
             var lifetime = new CancellationTokenSource();
@@ -67,4 +79,6 @@ public partial class App : System.Windows.Application
         }
         window.Show();
     }
+    protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
+    { if (MainWindow is MainWindow window) window.PrepareForExit(); base.OnSessionEnding(e); }
 }

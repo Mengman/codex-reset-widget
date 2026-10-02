@@ -2,17 +2,17 @@
 
 Windows 11 桌面重置追踪小组件。读取第三方已经分析好的 Codex 重置结果，展示下一次预计重置时间、Tibo 公告原文和历史重置日历。
 
-M1 已通过用户检查并提交。M2 已接入真实 API、自动刷新和本地缓存，等待用户检查。更新日期：2026 年 10 月 2 日。
+M1、M2 已通过用户检查并提交。M3 已完成桌面交互、托盘与设置恢复，等待用户检查。更新日期：2026 年 10 月 2 日。
 
 ## 运行与开发
 
-下载本地生成的 [M2 便携 ZIP](artifacts/milestones/m2/CodexResetWidget-0.2.0-m2-win-x64.zip)，完整解压后运行 `CodexResetWidget.exe`。包内包含 .NET 运行时和操作说明。默认读取真实公开数据；菜单可打开独立演示窗口。查看 [M2 验收记录](docs/milestones/m2-review.md) 了解测试结果和检查清单。
+下载本地生成的 [M3 便携 ZIP](artifacts/milestones/m3/CodexResetWidget-0.3.0-m3-win-x64.zip)，完整解压后运行 `CodexResetWidget.exe`。包内包含 .NET 运行时和操作说明。默认读取真实公开数据；菜单可打开独立演示窗口。关闭窗口会收进托盘；从托盘菜单选择“退出”可结束运行。查看 [M3 验收记录](docs/milestones/m3-review.md) 了解测试结果和检查清单。
 
 开发使用 `global.json` 锁定的 .NET SDK 10.0.401。在项目根目录运行：
 
 ```powershell
 .\scripts\build.ps1                    # 编译并执行业务测试
-.\scripts\build.ps1 -Publish -RunUiChecks # 生成便携包并检查实际 WPF 界面
+.\scripts\build.ps1 -Publish -RunUiChecks -RunDesktopChecks # 发布与界面、桌面检查
 ```
 
 SDK 可安装到系统或项目的 `.tools/dotnet/`。本工作区已配置本地 SDK；工具、依赖缓存和生成物不提交到 Git。
@@ -23,6 +23,7 @@ SDK 可安装到系统或项目的 `.tools/dotnet/`。本工作区已配置本�
 - [技术设计](docs/technical-design.md)：WPF 方案、数据接口、状态判断、缓存、主题和验证计划。
 - [开发计划](docs/development-plan.md)：四个 milestone 的交付、验收清单和用户检查暂停点。
 - [M2 验收记录](docs/milestones/m2-review.md)：联网、缓存恢复与同步边界验证。
+- [M3 验收记录](docs/milestones/m3-review.md)：托盘、位置恢复、主题与桌面操作验证。
 - [视觉与交互规范](docs/design/visual-spec.md)：Windows 11 深浅色设计、布局、颜色及状态展示。
 - [设计图](docs/design/windows11-light-dark.png)：浅色和深色版本对照。
 - [设计图生成说明](docs/design/image-generation.md)：生成方式、提示词与使用边界。

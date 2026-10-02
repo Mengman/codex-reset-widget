@@ -4,6 +4,7 @@
         Title="Codex Reset" Width="440" Height="1020" MinWidth="370" MinHeight="260"
         WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize"
         Background="{DynamicResource WindowBrush}" Foreground="{DynamicResource TextBrush}"
+        Icon="{StaticResource AppLogo}"
         FontFamily="Segoe UI Variable, Segoe UI, Microsoft YaHei UI" UseLayoutRounding="True" TextOptions.TextFormattingMode="Display" Topmost="{Binding IsPinned}">
   <shell:WindowChrome.WindowChrome><shell:WindowChrome CaptionHeight="50" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="12" /></shell:WindowChrome.WindowChrome>
   <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="12,8,12,8" CornerRadius="10">
@@ -11,20 +12,18 @@
       <Grid.RowDefinitions><RowDefinition Height="42" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
       <Grid Background="Transparent"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-          <Border Background="{DynamicResource LogoBrush}" CornerRadius="7" Width="29" Height="29" Margin="0,0,10,0">
-            <Viewbox Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
-              <Canvas Width="24" Height="24">
-                <Path Data="M 17.5,3.5 A 9,9 0 1 0 20.5,8" Stroke="White" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                <Path Data="M 17.5,3.5 L 20.5,4 L 20,1" Stroke="White" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
-              </Canvas>
-            </Viewbox>
-          </Border>
+          <Image Source="{StaticResource AppLogo}" Width="29" Height="29" Margin="0,0,10,0" />
           <TextBlock Text="Codex Reset" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center" />
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
           <Button Style="{StaticResource IconButton}" Content="&#xE72C;" Command="{Binding RefreshCommand}" ToolTip="刷新公告与历史记录" AutomationProperties.Name="刷新数据" />
-          <Button Style="{StaticResource IconButton}" Content="&#xE718;" Command="{Binding TogglePinCommand}" ToolTip="切换窗口置顶" AutomationProperties.Name="切换置顶" />
+          <Button x:Name="PinButton" Content="&#xE718;" Command="{Binding TogglePinCommand}" ToolTip="切换窗口置顶" AutomationProperties.Name="切换置顶">
+            <Button.Style><Style TargetType="Button" BasedOn="{StaticResource IconButton}"><Style.Triggers>
+              <DataTrigger Binding="{Binding IsPinned}" Value="True"><Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" /><Setter Property="Foreground" Value="{DynamicResource AccentBrush}" /></DataTrigger>
+            </Style.Triggers></Style></Button.Style>
+          </Button>
           <Button Style="{StaticResource ModeButton}" Command="{Binding ToggleModeCommand}" ToolTip="{Binding ModeAction}" AutomationProperties.Name="切换窗口模式" />
+          <Button Style="{StaticResource IconButton}" Content="&#xE921;" Click="MinimizeWindow" ToolTip="最小化" AutomationProperties.Name="最小化窗口" />
           <Button x:Name="MoreButton" Style="{StaticResource IconButton}" Content="&#xE712;" Click="ShowMenu" ToolTip="主题、演示工具与退出" AutomationProperties.Name="更多菜单">
             <Button.ContextMenu>
               <ContextMenu Background="{DynamicResource CardBrush}" Foreground="{DynamicResource TextBrush}">
@@ -38,10 +37,12 @@
                 <MenuItem Header="数据来源：Codex Resets" Click="OpenSource" />
                 <Separator />
                 <MenuItem Header="最小化" Click="MinimizeWindow" />
+                <MenuItem Header="收进托盘" Click="HideWindow" />
                 <MenuItem Header="退出" Click="ExitWindow" />
               </ContextMenu>
             </Button.ContextMenu>
           </Button>
+          <Button Style="{StaticResource IconButton}" Content="&#xE8BB;" Click="CloseWindow" ToolTip="关闭窗口，正式模式收进托盘" AutomationProperties.Name="关闭窗口" />
         </StackPanel>
       </Grid>
       <StackPanel Grid.Row="1" Margin="0,0,0,8">
@@ -81,6 +82,10 @@
           </Border>
           <StackPanel Visibility="{Binding IsExpanded, Converter={StaticResource BoolVisibility}}">
             <DockPanel Margin="2,14,0,8">
+              <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Style="{StaticResource IconButton}" Content="&#xE76B;" Command="{Binding OlderAnnouncementCommand}" ToolTip="较早的公告" AutomationProperties.Name="阅读较早公告" />
+                <Button Style="{StaticResource IconButton}" Content="&#xE76C;" Command="{Binding NewerAnnouncementCommand}" ToolTip="较新的公告" AutomationProperties.Name="阅读较新公告" />
+              </StackPanel>
               <Button DockPanel.Dock="Right" Content="返回最新" Command="{Binding ReturnLatestCommand}" Visibility="{Binding Announcement.IsReadingHistory, Converter={StaticResource BoolVisibility}}" Foreground="{DynamicResource AccentBrush}" Padding="5,0" MinHeight="26" AutomationProperties.Name="返回最新公告" />
               <TextBlock Text="{Binding Announcement.Heading}" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center" />
             </DockPanel>
@@ -175,6 +180,7 @@
           <Button DockPanel.Dock="Right" Content="演示工具" Command="{Binding ToggleToolsCommand}" Visibility="{Binding IsDemo, Converter={StaticResource BoolVisibility}}" Foreground="{DynamicResource AccentBrush}" Padding="0" MinHeight="20" FontSize="10" />
         </DockPanel>
         <TextBlock Text="{Binding CacheWarning}" Foreground="{DynamicResource NoticeTextBrush}" FontSize="11" TextWrapping="Wrap" />
+        <TextBlock x:Name="DesktopNotice" Foreground="{DynamicResource SecondaryBrush}" FontSize="11" TextWrapping="Wrap" />
       </StackPanel>
     </Grid>
   </Border>

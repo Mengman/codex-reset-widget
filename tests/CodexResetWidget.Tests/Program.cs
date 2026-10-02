@@ -117,5 +117,6 @@ Test("All demo scenarios evaluate without exceptions", () => {
 });
 var integration = await M2Checks.RunAsync();
 passed += integration.Passed; failed += integration.Failed;
+var desktop = M3Checks.Run(); passed += desktop.Passed; failed += desktop.Failed;
 Console.WriteLine($"{passed} passed, {failed} failed");
 return failed == 0 ? 0 : 1;
